@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prueba Power BI — Financial Sample</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a18;min-height:100vh;padding:2rem 1rem}
+.container{max-width:760px;margin:0 auto}
+h1{font-size:22px;font-weight:600;margin-bottom:4px}
+.subtitle{font-size:14px;color:#666;margin-bottom:1.5rem}
+.timer-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:#fff;border:1px solid #e0e0dc;border-radius:10px;margin-bottom:1.5rem;position:sticky;top:12px;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.timer-label{font-size:12px;color:#888;margin-bottom:2px}
+.timer-val{font-size:20px;font-weight:600;letter-spacing:1px;color:#1a1a18;font-variant-numeric:tabular-nums}
+.timer-val.warn{color:#b45309}
+.timer-val.danger{color:#b91c1c}
+.prog-outer{height:5px;background:#e5e5e0;border-radius:3px;flex:1;margin:0 18px}
+.prog-inner{height:100%;background:#3b82f6;border-radius:3px;transition:width 1s linear}
+.score-live-val{font-size:16px;font-weight:600;color:#1a1a18}
+.section-label{font-size:11px;font-weight:600;letter-spacing:.08em;color:#999;text-transform:uppercase;margin:2rem 0 .75rem;display:flex;align-items:center;gap:6px}
+.intro{font-size:14px;color:#555;line-height:1.7;margin-bottom:1.25rem;background:#fff;border:1px solid #e0e0dc;border-radius:10px;padding:1rem 1.25rem}
+.q-card{background:#fff;border:1px solid #e0e0dc;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
+.q-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:.75rem}
+.q-num{font-size:12px;color:#aaa;white-space:nowrap;margin-top:2px}
+.badges{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.badge{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500}
+.badge-tag{background:#eff6ff;color:#1d4ed8}
+.badge-pts{background:#fffbeb;color:#92400e}
+.badge-multi{background:#f5f3ff;color:#6d28d9}
+.badge-ob{background:#fef2f2;color:#b91c1c}
+.badge-op{background:#f0fdf4;color:#166534}
+.q-text{font-size:14px;font-weight:600;color:#1a1a18;line-height:1.6;margin-bottom:.75rem}
+.hint{font-size:12px;color:#888;margin-bottom:.6rem;font-style:italic}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border:1px solid #d1d5db;border-radius:8px;cursor:pointer;transition:background .12s,border-color .12s;user-select:none}
+.opt:hover{background:#f8f8f6;border-color:#9ca3af}
+.opt.selected{background:#eff6ff;border-color:#3b82f6}
+.opt.correct{background:#f0fdf4;border-color:#16a34a}
+.opt.incorrect{background:#fef2f2;border-color:#dc2626}
+.opt.reveal{background:#f0fdf4;border-color:#16a34a;opacity:.6}
+.opt.disabled{cursor:default;pointer-events:none}
+.opt input{margin-top:3px;flex-shrink:0;accent-color:#3b82f6;width:16px;height:16px}
+.opt-label{font-size:13px;color:#374151;line-height:1.5}
+.opt.selected .opt-label{color:#1d4ed8}
+.opt.correct .opt-label{color:#15803d}
+.opt.incorrect .opt-label{color:#b91c1c}
+.opt.reveal .opt-label{color:#15803d}
+.fb{margin-top:.75rem;padding:10px 14px;border-radius:8px;font-size:13px;line-height:1.6}
+.fb.ok{background:#f0fdf4;color:#15803d;border:1px solid #86efac}
+.fb.fail{background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5}
+.check-btn{margin-top:10px;padding:8px 18px;border:1px solid #d1d5db;border-radius:8px;background:#f9f9f7;color:#374151;font-size:13px;cursor:pointer;font-weight:500}
+.check-btn:hover{background:#f3f3f0;border-color:#9ca3af}
+.practica-card{background:#fff;border:1px solid #e0e0dc;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
+.practica-title{font-size:14px;font-weight:600;color:#1a1a18;margin-bottom:.6rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.practica-body{font-size:13px;color:#555;line-height:1.7}
+.practica-body ul{padding-left:1.4rem;margin-top:.5rem}
+.practica-body li{margin-bottom:4px}
+.practica-body code{background:#f3f4f6;padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px}
+.submit-area{margin-top:1.5rem;padding:1.25rem;background:#fff;border:1px solid #e0e0dc;border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.score-bottom{font-size:13px;color:#666}
+.submit-btn{padding:10px 26px;border:none;border-radius:8px;background:#3b82f6;color:#fff;font-size:14px;cursor:pointer;font-weight:600}
+.submit-btn:hover{background:#2563eb}
+.result-panel{padding:2rem 1.5rem;background:#fff;border:1px solid #e0e0dc;border-radius:12px;text-align:center;margin-top:1rem}
+.result-big{font-size:56px;font-weight:700;color:#3b82f6;line-height:1}
+.result-sub{font-size:15px;color:#888;margin-top:6px}
+.result-msg{font-size:15px;color:#374151;margin-top:1rem;line-height:1.6;max-width:480px;margin-left:auto;margin-right:auto}
+.breakdown{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:1.25rem;max-width:420px;margin-left:auto;margin-right:auto}
+.bk-card{background:#f9f9f7;border:1px solid #e5e5e0;border-radius:8px;padding:14px;text-align:center}
+.bk-val{font-size:22px;font-weight:700;color:#1a1a18}
+.bk-lbl{font-size:12px;color:#888;margin-top:3px}
+.nota-evaluador{margin-top:1.25rem;padding:12px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:13px;color:#92400e;text-align:left;max-width:480px;margin-left:auto;margin-right:auto}
+.bloqueado-banner{background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:13px;color:#b91c1c;margin-bottom:1rem;text-align:center;font-weight:500}
+@media(max-width:560px){
+  .timer-bar{flex-direction:column;gap:8px;position:relative;top:0}
+  .prog-outer{width:100%;margin:4px 0}
+  .breakdown{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Prueba de Power BI — Financial Sample</h1>
+<p class="subtitle">Evaluación práctica y teórica &nbsp;·&nbsp; Tiempo máximo: 60 minutos</p>
+
+<div class="timer-bar">
+  <div>
+    <div class="timer-label">Tiempo restante</div>
+    <div class="timer-val" id="tval">60:00</div>
+  </div>
+  <div class="prog-outer"><div class="prog-inner" id="tprog" style="width:100%"></div></div>
+  <div style="text-align:right">
+    <div class="timer-label">Puntaje teórico</div>
+    <div class="score-live-val" id="score-live">0 / 24 pts</div>
+  </div>
+</div>
+
+<div id="main-area">
+
+<div class="intro">
+  Esta prueba evalúa tus conocimientos de <strong>Power BI</strong> usando el dataset <strong>Financial_Sample.xlsx</strong>. Consta de dos partes:
+  <ul style="margin-top:8px;padding-left:1.4rem;line-height:2">
+    <li><strong>Parte 1:</strong> 8 preguntas de opción múltiple (24 pts) — responde y verifica cada pregunta.</li>
+    <li><strong>Parte 2:</strong> Ejercicio práctico en Power BI Desktop (36 pts + 6 pts bonus).</li>
+  </ul>
+  Dispones de <strong>60 minutos</strong> en total. <strong>Atención:</strong> una vez que verificas una respuesta o finaliza el tiempo, no podrás modificarla aunque recargues el navegador.
+</div>
+
+<div class="section-label">&#x2713; Parte 1 — Preguntas de opción múltiple (24 pts)</div>
+<div id="questions-area"></div>
+
+<div class="section-label" style="margin-top:2.5rem">&#x25A6; Parte 2 — Ejercicio práctico en Power BI (36 pts)</div>
+<div class="intro">
+  Abre <strong>Power BI Desktop</strong> y construye un tablero usando el archivo <strong>Financial_Sample.xlsx</strong> cumpliendo los requerimientos a continuación. Al terminar, guarda y entrega el archivo <strong>.pbix</strong>.
+</div>
+
+<div class="practica-card">
+  <div class="practica-title">&#x1F4E5; Requerimiento 1 — Conexión y transformación <span class="badge badge-ob">Obligatorio</span> <span class="badge badge-pts">8 pts</span></div>
+  <div class="practica-body"><ul>
+    <li>Conectar el archivo Excel y cargar la hoja <strong>Sheet1</strong> desde <em>Inicio → Obtener datos → Excel Workbook</em>.</li>
+    <li>En Power Query: reemplazar los valores <code>NaN</code> de la columna <strong>Discount Band</strong> por el texto <em>Sin descuento</em>.</li>
+    <li>Verificar que la columna <strong>Date</strong> tenga tipo <em>Fecha</em> y <strong>Units Sold</strong> tipo <em>Número decimal</em>.</li>
+    <li>Crear una <strong>tabla Calendario</strong> con <code>CALENDARAUTO()</code>, marcarla como tabla de fechas y relacionarla con <strong>Sheet1[Date]</strong>.</li>
+  </ul></div>
+</div>
+
+<div class="practica-card">
+  <div class="practica-title">&#x1F9EE; Requerimiento 2 — Medidas DAX <span class="badge badge-ob">Obligatorio</span> <span class="badge badge-pts">10 pts</span></div>
+  <div class="practica-body">Crear las siguientes medidas en una tabla vacía llamada <strong>_Medidas</strong>:
+  <ul>
+    <li><code>Total Ventas</code> = suma de la columna Sales.</li>
+    <li><code>Total Utilidad</code> = suma de la columna Profit.</li>
+    <li><code>Margen %</code> = Total Utilidad / Total Ventas (usar <code>DIVIDE</code>).</li>
+    <li><code>Ventas YTD</code> = ventas acumuladas del año usando <code>TOTALYTD</code> o <code>DATESYTD</code>.</li>
+    <li><code>Unidades Vendidas</code> = suma de Units Sold.</li>
+  </ul></div>
+</div>
+
+<div class="practica-card">
+  <div class="practica-title">&#x1F4CA; Requerimiento 3 — Visualizaciones <span class="badge badge-ob">Obligatorio</span> <span class="badge badge-pts">12 pts</span></div>
+  <div class="practica-body">El tablero debe incluir en una sola página:
+  <ul>
+    <li><strong>4 tarjetas (Cards):</strong> Total Ventas, Total Utilidad, Margen %, Unidades Vendidas.</li>
+    <li><strong>Gráfico de líneas:</strong> tendencia de Total Ventas por mes y año.</li>
+    <li><strong>Gráfico de barras agrupadas:</strong> Total Ventas y Total Utilidad por Country.</li>
+    <li><strong>Gráfico de barras apiladas:</strong> Total Ventas por Segment con desglose por Product.</li>
+    <li><strong>Segmentador (Slicer):</strong> filtro por Year (2013, 2014).</li>
+    <li><strong>Segmentador (Slicer):</strong> filtro por Segment.</li>
+  </ul></div>
+</div>
+
+<div class="practica-card">
+  <div class="practica-title">&#x2728; Requerimiento 4 — Formato y presentación <span class="badge badge-op">Opcional</span> <span class="badge badge-pts">6 pts bonus</span></div>
+  <div class="practica-body"><ul>
+    <li>Aplicar un tema de color consistente en todo el tablero.</li>
+    <li>Agregar un título a la página del informe.</li>
+    <li>Formatear las medidas monetarias con símbolo <strong>$</strong> y separador de miles.</li>
+    <li>El <strong>Margen %</strong> debe mostrarse con formato de porcentaje (ej. 35.2%).</li>
+  </ul></div>
+</div>
+
+<div class="submit-area">
+  <div class="score-bottom" id="score-bottom">Responde y verifica todas las preguntas antes de finalizar.</div>
+  <button class="submit-btn" onclick="confirmFinalize()">Finalizar prueba</button>
+</div>
+</div>
+
+<div id="result-area" style="display:none"></div>
+</div>
+
+<script>
+const STORAGE_KEY = 'prueba_pbi_v1';
+
+const QS=[
+  {tag:"Conexión",text:"¿Qué pasos debes seguir para conectar el archivo Financial_Sample.xlsx en Power BI Desktop?",multi:false,opts:["Archivo → Importar → Excel","Inicio → Obtener datos → Excel Workbook → seleccionar Sheet1","Inicio → Obtener datos → Texto/CSV","Inicio → Obtener datos → Web → pegar ruta del archivo"],correct:[1],pts:3,explain:"El flujo correcto es 'Obtener datos → Excel Workbook'. Power BI abre el Navegador donde seleccionas la hoja Sheet1 y eliges Transformar o Cargar datos."},
+  {tag:"Power Query",text:"En Power Query, ¿cuáles de las siguientes acciones son correctas para limpiar la columna Discount Band que contiene valores 'NaN'? (selecciona todas las correctas)",multi:true,opts:["Usar 'Reemplazar valores': NaN → Sin descuento","Filtrar y eliminar las filas con NaN","Convertir la columna a tipo numérico","Usar 'Reemplazar valores': NaN → null"],correct:[0,3],pts:3,explain:"Reemplazar NaN por texto descriptivo o por null son opciones válidas. Eliminar filas con NaN sería incorrecto porque esas filas tienen ventas reales sin descuento. Convertir a numérico no aplica para una columna categórica."},
+  {tag:"Modelado",text:"¿Cuál es la forma correcta de crear una tabla Calendario en DAX para este modelo?",multi:false,opts:["Calendar = CALENDAR(DATE(2013,1,1), DATE(2014,12,31))","Calendar = CALENDARAUTO()","Calendar = DATESBETWEEN(Sheet1[Date], MIN(Sheet1[Date]), MAX(Sheet1[Date]))","No es necesaria una tabla Calendario si ya existe la columna Date"],correct:[1],pts:3,explain:"CALENDARAUTO() detecta automáticamente el rango de fechas del modelo. También es válido CALENDAR() con fechas específicas, pero CALENDARAUTO() es más eficiente. Luego debe marcarse como 'Tabla de fechas'."},
+  {tag:"DAX",text:"¿Cuál es la medida DAX correcta para calcular el Margen % evitando error de división por cero?",multi:false,opts:["Margen % = [Total Utilidad] / [Total Ventas]","Margen % = DIVIDE([Total Utilidad], [Total Ventas], 0)","Margen % = IF([Total Ventas]=0, 0, [Total Utilidad]/[Total Ventas])","Las opciones B y C son correctas"],correct:[3],pts:3,explain:"Tanto DIVIDE() como IF() protegen contra la división por cero. DIVIDE es la forma más concisa y recomendada. IF() es funcionalmente equivalente. La opción A puede devolver BLANK() inesperado."},
+  {tag:"DAX",text:"¿Cuál de las siguientes fórmulas calcula correctamente las Ventas acumuladas del año (YTD)?",multi:false,opts:["Ventas YTD = TOTALYTD([Total Ventas], Sheet1[Date])","Ventas YTD = TOTALYTD([Total Ventas], Calendar[Date])","Ventas YTD = CALCULATE([Total Ventas], DATESYTD(Calendar[Date]))","Las opciones B y C son correctas si Calendar está marcada como tabla de fechas"],correct:[3],pts:3,explain:"TOTALYTD y CALCULATE+DATESYTD son equivalentes para YTD. La función debe referenciar la tabla Calendario marcada como tabla de fechas, no la tabla de hechos. B y C son correctas; A no."},
+  {tag:"Visualización",text:"¿Qué visuales de Power BI permiten mostrar las Ventas por Segment y desglosarlas por Product haciendo drill-down? (selecciona todas las que apliquen)",multi:true,opts:["Gráfico de barras apiladas con jerarquía Segment → Product","Matriz (Matrix) con Segment en filas y Product en columnas","Gráfico circular (Pie Chart)","Gráfico de columnas agrupadas con jerarquía"],correct:[0,1,3],pts:3,explain:"Barras/columnas con jerarquía permiten drill-down. La Matriz permite expandir filas/columnas para ver el detalle. El gráfico circular no es adecuado para jerarquías con múltiples categorías."},
+  {tag:"Filtros",text:"Si deseas que el slicer de 'Year' NO afecte el gráfico de líneas de tendencia, ¿qué debes hacer?",multi:false,opts:["Eliminar el slicer","Ir a Formato → Editar interacciones → seleccionar el gráfico → clic en el ícono 'sin filtro'","Usar REMOVEFILTERS en la medida del gráfico","Cambiar el tipo del slicer a desplegable"],correct:[1],pts:3,explain:"'Editar interacciones' permite controlar cómo cada slicer afecta los demás visuales. Al seleccionar el slicer y hacer clic en 'sin filtro' sobre el gráfico de líneas, ese visual queda independiente del slicer."},
+  {tag:"Modelado",text:"¿Cuáles son buenas prácticas al construir el modelo de datos para este dataset? (selecciona todas las correctas)",multi:true,opts:["Crear todas las medidas en una tabla de medidas vacía llamada _Medidas","Preferir medidas DAX sobre columnas calculadas para KPIs","Crear columnas calculadas para cada KPI en lugar de medidas","Establecer la relación entre Calendar[Date] y Sheet1[Date]"],correct:[0,1,3],pts:3,explain:"Centralizar medidas en _Medidas facilita el mantenimiento. Las medidas son más eficientes en memoria y se adaptan al contexto de filtro. La relación Calendar–Sheet1 es indispensable para inteligencia de tiempo."}
+];
+
+let state = {
+  checked: new Array(QS.length).fill(false),
+  selections: QS.map(() => []),
+  timerSec: 3600,
+  finished: false,
+  startTs: Date.now()
+};
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const s = JSON.parse(raw);
+    if (!s || s.finished === undefined) return false;
+    // recalculate elapsed time since start
+    const elapsed = Math.floor((Date.now() - s.startTs) / 1000);
+    s.timerSec = Math.max(0, 3600 - elapsed);
+    state = s;
+    state.selections = state.selections.map(a => a || []);
+    return true;
+  } catch(e){ return false; }
+}
+
+function calcScore() {
+  let total = 0;
+  QS.forEach((q, i) => {
+    if (!state.checked[i]) return;
+    const sel = state.selections[i];
+    if (sel.length === q.correct.length && q.correct.every(c => sel.includes(c))) total += q.pts;
+  });
+  return total;
+}
+
+function updateScoreLive() {
+  const s = calcScore();
+  const max = QS.reduce((a,q) => a+q.pts, 0);
+  document.getElementById('score-live').textContent = s + ' / ' + max + ' pts';
+  const answered = state.checked.filter(Boolean).length;
+  document.getElementById('score-bottom').textContent = answered + ' de ' + QS.length + ' preguntas verificadas · Puntaje actual: ' + s + ' pts.';
+}
+
+function applyCheckedState(qi) {
+  const q = QS[qi];
+  const sel = state.selections[qi];
+  const correct = q.correct;
+  const isRight = sel.length === correct.length && correct.every(c => sel.includes(c));
+
+  document.querySelectorAll('#opts-' + qi + ' .opt').forEach((el, j) => {
+    el.classList.remove('selected');
+    el.classList.add('disabled');
+    el.style.cursor = 'default';
+    el.style.pointerEvents = 'none';
+    if (correct.includes(j) && sel.includes(j)) el.classList.add('correct');
+    else if (!correct.includes(j) && sel.includes(j)) el.classList.add('incorrect');
+    else if (correct.includes(j) && !sel.includes(j)) el.classList.add('reveal');
+    // sync checkbox/radio visual
+    const inp = el.querySelector('input');
+    if (inp) inp.checked = sel.includes(j);
+  });
+
+  const fb = document.getElementById('fb-' + qi);
+  fb.innerHTML = '<div class="fb ' + (isRight ? 'ok' : 'fail') + '"><strong>' + (isRight ? '✓ Correcto — +' + q.pts + ' pts' : '✗ Incorrecto — 0 pts') + '</strong>. ' + q.explain + '</div>';
+  const btn = document.getElementById('chk-' + qi);
+  if (btn) btn.style.display = 'none';
+}
+
+function toggleOpt(qi, oi, e) {
+  if (state.checked[qi] || state.finished) return;
+  const q = QS[qi];
+  if (!q.multi) {
+    state.selections[qi] = [];
+    document.querySelectorAll('#opts-' + qi + ' .opt').forEach(el => el.classList.remove('selected'));
+  }
+  const idx = state.selections[qi].indexOf(oi);
+  if (idx > -1) {
+    state.selections[qi].splice(idx, 1);
+    document.getElementById('opt-' + qi + '-' + oi).classList.remove('selected');
+  } else {
+    state.selections[qi].push(oi);
+    document.getElementById('opt-' + qi + '-' + oi).classList.add('selected');
+  }
+  saveState();
+}
+
+function checkQ(qi) {
+  if (state.checked[qi] || state.finished) return;
+  if (state.selections[qi].length === 0) {
+    alert('Selecciona al menos una opción antes de verificar.');
+    return;
+  }
+  state.checked[qi] = true;
+  saveState();
+  applyCheckedState(qi);
+  updateScoreLive();
+}
+
+function renderQuestions() {
+  const area = document.getElementById('questions-area');
+  area.innerHTML = QS.map((q, i) => `
+    <div class="q-card" id="qcard-${i}">
+      <div class="q-top">
+        <span class="q-num">Pregunta ${i+1} de ${QS.length}</span>
+        <div class="badges">
+          <span class="badge badge-tag">${q.tag}</span>
+          <span class="badge badge-pts">${q.pts} pts</span>
+          ${q.multi ? '<span class="badge badge-multi">múltiple</span>' : ''}
+        </div>
+      </div>
+      <div class="q-text">${q.text}</div>
+      ${q.multi ? '<div class="hint">Selecciona todas las opciones correctas.</div>' : ''}
+      <div class="opts" id="opts-${i}">
+        ${q.opts.map((o, j) => `
+          <label class="opt" id="opt-${i}-${j}" onclick="toggleOpt(${i},${j},event)">
+            <input type="${q.multi ? 'checkbox' : 'radio'}" name="q${i}" value="${j}" style="pointer-events:none">
+            <span class="opt-label">${String.fromCharCode(65+j)}. ${o}</span>
+          </label>
+        `).join('')}
+      </div>
+      <div id="fb-${i}"></div>
+      <button class="check-btn" onclick="checkQ(${i})" id="chk-${i}">Verificar respuesta</button>
+    </div>
+  `).join('');
+
+  // restore visual selections (not yet verified)
+  QS.forEach((q, i) => {
+    state.selections[i].forEach(oi => {
+      const el = document.getElementById('opt-' + i + '-' + oi);
+      if (el && !state.checked[i]) el.classList.add('selected');
+      const inp = el ? el.querySelector('input') : null;
+      if (inp) inp.checked = true;
+    });
+    if (state.checked[i]) applyCheckedState(i);
+  });
+}
+
+function startTimer() {
+  updateTimerDisplay();
+  const iv = setInterval(() => {
+    if (state.finished) { clearInterval(iv); return; }
+    state.timerSec--;
+    saveState();
+    if (state.timerSec <= 0) { clearInterval(iv); finalize(true); return; }
+    updateTimerDisplay();
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(state.timerSec / 60);
+  const s = state.timerSec % 60;
+  const tv = document.getElementById('tval');
+  tv.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  if (state.timerSec <= 300) tv.className = 'timer-val danger';
+  else if (state.timerSec <= 600) tv.className = 'timer-val warn';
+  else tv.className = 'timer-val';
+  document.getElementById('tprog').style.width = (state.timerSec / 3600 * 100).toFixed(2) + '%';
+}
+
+function confirmFinalize() {
+  const pending = state.checked.filter(Boolean).length;
+  const msg = pending < QS.length
+    ? 'Aún tienes ' + (QS.length - pending) + ' pregunta(s) sin verificar. Las preguntas sin verificar contarán como incorrectas.\n\n¿Deseas finalizar de todas formas?'
+    : '¿Confirmas que deseas finalizar la prueba? Esta acción no se puede deshacer.';
+  if (confirm(msg)) finalize(false);
+}
+
+function finalize(byTimer) {
+  if (state.finished) return;
+  state.finished = true;
+  QS.forEach((_, i) => { if (!state.checked[i]) { state.selections[i] = []; state.checked[i] = true; } });
+  saveState();
+  showResult();
+}
+
+function showResult() {
+  const score = calcScore();
+  const maxTeo = QS.reduce((a, q) => a + q.pts, 0);
+  const pct = Math.round(score / maxTeo * 100);
+  const elapsed = 3600 - state.timerSec;
+  const em = Math.floor(elapsed / 60);
+  const es = elapsed % 60;
+  let msg = '';
+  if (pct >= 88) msg = 'Excelente dominio teórico. Pendiente la revisión del tablero Power BI por el evaluador.';
+  else if (pct >= 67) msg = 'Buen nivel teórico. Refuerza DAX e inteligencia de tiempo. Pendiente revisión del tablero.';
+  else if (pct >= 50) msg = 'Conocimiento básico presente. Revisa modelado, Power Query y medidas DAX.';
+  else msg = 'Hay áreas clave por reforzar. Se recomienda repasar los fundamentos antes de volver a presentar.';
+
+  document.getElementById('main-area').style.display = 'none';
+  const ra = document.getElementById('result-area');
+  ra.style.display = 'block';
+  ra.innerHTML = `
+    <div class="result-panel">
+      <div class="result-big">${score}<span style="font-size:24px;color:#aaa;font-weight:400"> / ${maxTeo}</span></div>
+      <div class="result-sub">puntos teóricos &nbsp;·&nbsp; ${pct}% de acierto</div>
+      <p class="result-msg">${msg}</p>
+      <div class="breakdown">
+        <div class="bk-card"><div class="bk-val">${pct}%</div><div class="bk-lbl">acierto teórico</div></div>
+        <div class="bk-card"><div class="bk-val">${em}m ${es}s</div><div class="bk-lbl">tiempo utilizado</div></div>
+        <div class="bk-card"><div class="bk-val">36 pts</div><div class="bk-lbl">práctica (evaluador)</div></div>
+        <div class="bk-card"><div class="bk-val">${score+36} pts</div><div class="bk-lbl">máximo posible</div></div>
+      </div>
+      <div class="nota-evaluador">
+        <strong>Nota para el evaluador:</strong> El candidato obtuvo <strong>${score}/${maxTeo} pts</strong> en la parte teórica en <strong>${em}m ${es}s</strong>. La sección práctica (36 pts + 6 bonus) debe evaluarse revisando el archivo <strong>.pbix</strong> entregado.
+      </div>
+    </div>
+  `;
+}
+
+// --- INIT ---
+const hadSave = loadState();
+
+if (state.finished) {
+  // already finished — show results directly, no restart possible
+  document.querySelector('h1').insertAdjacentHTML('afterend',
+    '<div class="bloqueado-banner" style="margin-top:12px">Esta prueba ya fue finalizada. Las respuestas están bloqueadas.</div>');
+  renderQuestions();
+  updateScoreLive();
+  updateTimerDisplay();
+  document.getElementById('tval').className = 'timer-val danger';
+  document.getElementById('tprog').style.width = '0%';
+  showResult();
+} else {
+  if (!hadSave) {
+    // first open — set startTs
+    state.startTs = Date.now();
+    saveState();
+  }
+  renderQuestions();
+  updateScoreLive();
+  startTimer();
+}
+
+// Block F5 / Ctrl+R with a warning (browser may ignore this on some platforms)
+window.addEventListener('beforeunload', function(e) {
+  if (!state.finished) {
+    e.preventDefault();
+    e.returnValue = 'Si recargas la página tus respuestas verificadas se conservan, pero el tiempo sigue corriendo.';
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prueba Power BI — Planificador de la Demanda</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a18;min-height:100vh;padding:2rem 1rem}
+.container{max-width:780px;margin:0 auto}
+h1{font-size:22px;font-weight:600;margin-bottom:4px;color:#1F3864}
+.subtitle{font-size:14px;color:#666;margin-bottom:1.5rem}
+.timer-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:#fff;border:1px solid #e0e0dc;border-radius:10px;margin-bottom:1.5rem;position:sticky;top:12px;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.timer-label{font-size:12px;color:#888;margin-bottom:2px}
+.timer-val{font-size:20px;font-weight:600;letter-spacing:1px;color:#1a1a18;font-variant-numeric:tabular-nums}
+.timer-val.warn{color:#b45309}.timer-val.danger{color:#b91c1c}
+.prog-outer{height:5px;background:#e5e5e0;border-radius:3px;flex:1;margin:0 18px}
+.prog-inner{height:100%;background:#1F3864;border-radius:3px;transition:width 1s linear}
+.score-live-val{font-size:16px;font-weight:600;color:#1a1a18}
+.section-label{font-size:11px;font-weight:600;letter-spacing:.08em;color:#999;text-transform:uppercase;margin:2rem 0 .75rem}
+.intro{font-size:14px;color:#555;line-height:1.7;margin-bottom:1.25rem;background:#fff;border:1px solid #e0e0dc;border-radius:10px;padding:1rem 1.25rem}
+.q-card{background:#fff;border:1px solid #e0e0dc;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
+.q-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:.75rem}
+.q-num{font-size:12px;color:#aaa;white-space:nowrap;margin-top:2px}
+.badges{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+.badge{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500}
+.badge-tag{background:#eff6ff;color:#1d4ed8}.badge-pts{background:#fffbeb;color:#92400e}
+.badge-multi{background:#f5f3ff;color:#6d28d9}.badge-ob{background:#fef2f2;color:#b91c1c}
+.badge-op{background:#f0fdf4;color:#166534}
+.q-text{font-size:14px;font-weight:600;color:#1a1a18;line-height:1.6;margin-bottom:.75rem}
+.hint{font-size:12px;color:#888;margin-bottom:.6rem;font-style:italic}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border:1px solid #d1d5db;border-radius:8px;cursor:pointer;user-select:none;transition:background .12s,border-color .12s}
+.opt:hover{background:#f8f8f6;border-color:#9ca3af}
+.opt.selected{background:#eff6ff;border-color:#1F3864}
+.opt.correct{background:#f0fdf4;border-color:#16a34a}
+.opt.incorrect{background:#fef2f2;border-color:#dc2626}
+.opt.reveal{background:#f0fdf4;border-color:#16a34a;opacity:.65}
+.opt input{margin-top:3px;flex-shrink:0;accent-color:#1F3864;width:16px;height:16px}
+.opt-label{font-size:13px;color:#374151;line-height:1.5}
+.opt.selected .opt-label{color:#1d4ed8}.opt.correct .opt-label{color:#15803d}
+.opt.incorrect .opt-label{color:#b91c1c}.opt.reveal .opt-label{color:#15803d}
+.fb{margin-top:.75rem;padding:10px 14px;border-radius:8px;font-size:13px;line-height:1.6}
+.fb.ok{background:#f0fdf4;color:#15803d;border:1px solid #86efac}
+.fb.fail{background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5}
+.check-btn{margin-top:10px;padding:8px 18px;border:1px solid #d1d5db;border-radius:8px;background:#f9f9f7;color:#374151;font-size:13px;cursor:pointer;font-weight:500}
+.check-btn:hover{background:#f3f3f0}
+.practica-card{background:#fff;border:1px solid #e0e0dc;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
+.practica-title{font-size:14px;font-weight:600;color:#1a1a18;margin-bottom:.6rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.practica-body{font-size:13px;color:#555;line-height:1.7}
+.practica-body ul{padding-left:1.4rem;margin-top:.5rem}
+.practica-body li{margin-bottom:5px}
+.practica-body code{background:#f3f4f6;padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px}
+.submit-area{margin-top:1.5rem;padding:1.25rem;background:#fff;border:1px solid #e0e0dc;border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.score-bottom{font-size:13px;color:#666}
+.submit-btn{padding:10px 26px;border:none;border-radius:8px;background:#1F3864;color:#fff;font-size:14px;cursor:pointer;font-weight:600}
+.submit-btn:hover{background:#2563eb}
+.result-panel{padding:2rem 1.5rem;background:#fff;border:1px solid #e0e0dc;border-radius:12px;text-align:center;margin-top:1rem}
+.result-big{font-size:56px;font-weight:700;color:#1F3864;line-height:1}
+.result-sub{font-size:15px;color:#888;margin-top:6px}
+.result-msg{font-size:15px;color:#374151;margin-top:1rem;line-height:1.6;max-width:500px;margin-left:auto;margin-right:auto}
+.breakdown{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:1.25rem;max-width:440px;margin-left:auto;margin-right:auto}
+.bk-card{background:#f9f9f7;border:1px solid #e5e5e0;border-radius:8px;padding:14px;text-align:center}
+.bk-val{font-size:22px;font-weight:700;color:#1a1a18}.bk-lbl{font-size:12px;color:#888;margin-top:3px}
+.nota-ev{margin-top:1.25rem;padding:12px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:13px;color:#92400e;text-align:left;max-width:500px;margin-left:auto;margin-right:auto}
+.restart{margin-top:1.25rem;padding:10px 26px;border:1px solid #d1d5db;border-radius:8px;background:#f9f9f7;color:#374151;font-size:14px;cursor:pointer}
+.bloq-banner{background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:13px;color:#b91c1c;margin-bottom:1rem;text-align:center;font-weight:500}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Prueba Power BI — Planificador de la Demanda</h1>
+<p class="subtitle">Nivel Intermedio · Evaluación teórica + práctica · Tiempo máximo: 60 minutos</p>
+
+<div class="timer-bar">
+  <div><div class="timer-label">Tiempo restante</div><div class="timer-val" id="tval">60:00</div></div>
+  <div class="prog-outer"><div class="prog-inner" id="tprog" style="width:100%"></div></div>
+  <div style="text-align:right"><div class="timer-label">Puntaje teórico</div><div class="score-live-val" id="score-live">0 / 27 pts</div></div>
+</div>
+
+<div id="main-area">
+
+<div class="intro">
+  Esta prueba evalúa tu dominio de <strong>Power BI</strong> aplicado a la <strong>planificación de la demanda</strong>. Usa los datos del archivo Excel de la prueba anterior como fuente de datos para la parte práctica. Consta de:
+  <ul style="margin-top:8px;padding-left:1.4rem;line-height:2">
+    <li><strong>Parte 1:</strong> 9 preguntas de opción múltiple (27 pts)</li>
+    <li><strong>Parte 2:</strong> Tablero de demanda en Power BI Desktop (43 pts + 10 bonus)</li>
+  </ul>
+  Tiempo total: <strong>60 minutos</strong>. Las respuestas verificadas quedan bloqueadas aunque recargues el navegador.
+</div>
+
+<div class="section-label">Parte 1 — Preguntas de opción múltiple (27 pts)</div>
+<div id="questions-area"></div>
+
+<div class="section-label" style="margin-top:2.5rem">Parte 2 — Tablero de Demanda en Power BI (43 pts)</div>
+
+<div class="intro">
+  Abre <strong>Power BI Desktop</strong> y construye un tablero de planificación de la demanda usando el archivo <strong>prueba_excel_planificador.xlsx</strong>. Entrega el archivo <strong>.pbix</strong> al evaluador al finalizar.
+</div>
+
+<div class="practica-card">
+  <div class="practica-title">📥 Req 1 — Conexión y modelo de datos <span class="badge badge-ob">Obligatorio</span> <span class="badge badge-pts">10 pts</span></div>
+  <div class="practica-body"><ul>
+    <li>Conectar las hojas <strong>Histórico Ventas</strong> y <strong>Forecast Demanda</strong> del archivo Excel.</li>
+    <li>En Power Query: limpiar los datos de la hoja Histórico — reemplazar valores negativos y nulos por <code>0</code> en las columnas de ventas mensuales.</li>
+    <li>Crear una <strong>tabla Calendario</strong> con <code>CALENDARAUTO()</code> marcada como tabla de fechas.</li>
+    <li>Transformar el formato de la tabla de ventas de <em>ancho a largo</em> (unpivot de las columnas de meses) para tener columnas: SKU, Producto, Categoría, Mes, Unidades.</li>
+    <li>Establecer relación entre la tabla de ventas (columna Mes) y la tabla Calendario.</li>
+  </ul></div>
+</div>
+
+<div class="practica-card">
+  <div class="practica-title">🧮 Req 2 — Medidas DAX de planificación <span class="badge badge-ob">Obligatorio</span> <span class="badge badge-pts">15 pts</span></div>
+  <div class="practica-body">Crear en una tabla <strong>_Medidas</strong>:
+  <ul>
+    <li><code>Total Unidades</code> = suma de unidades vendidas.</li>
+    <li><code>Promedio Mensual</code> = promedio de unidades por mes.</li>
+    <li><code>Crecimiento YoY %</code> = comparación de unidades vs. mismo período año anterior.</li>
+    <li><code>MAD</code> = desviación media absoluta entre ventas reales y forecast (promedio de |Real - Forecast|).</li>
+    <li><code>BIAS %</code> = (Total Forecast - Total Real) / Total Real — indica si el forecast sobre o subestima.</li>
+    <li><code>Mejor SKU</code> = SKU con mayor volumen de ventas (usando <code>TOPN</code> o <code>RANKX</code>).</li>
+  </ul></div>
+</div>
+
+<div class="practica-card">
+  <div class="practica-title">📊 Req 3 — Visualizaciones del tablero <span class="badge badge-ob">Obligatorio</span> <span class="badge badge-pts">15 pts</span></div>
+  <div class="practica-body">El tablero debe tener <strong>2 páginas</strong>:
+  <ul>
+    <li><strong>Página 1 — Histórico de Ventas:</strong>
+      <ul style="margin-top:4px">
+        <li>Gráfico de líneas: evolución mensual de Total Unidades por SKU (con leyenda por SKU).</li>
+        <li>Gráfico de barras agrupadas: ventas por Categoría comparando H1 2024 vs H2 2024 vs H1 2025.</li>
+        <li>Tabla de matriz: SKU × Mes con Total Unidades (con barras de datos en las celdas).</li>
+        <li>3 tarjetas (Cards): Total Unidades, Promedio Mensual, Mejor SKU.</li>
+        <li>Slicer: filtro por Categoría.</li>
+      </ul>
+    </li>
+    <li style="margin-top:8px"><strong>Página 2 — Forecast vs Real:</strong>
+      <ul style="margin-top:4px">
+        <li>Gráfico de líneas doble: Real vs Forecast por mes (dos series).</li>
+        <li>Gráfico de barras: MAD por SKU (para identificar cuál tiene mayor error de forecast).</li>
+        <li>2 tarjetas: MAD general, BIAS %.</li>
+        <li>Slicer: filtro por SKU.</li>
+      </ul>
+    </li>
+  </ul></div>
+</div>
+
+<div class="practica-card">
+  <div class="practica-title">✨ Req 4 — Formato y análisis <span class="badge badge-op">Opcional</span> <span class="badge badge-pts">3 pts + 10 bonus</span></div>
+  <div class="practica-body"><ul>
+    <li>Título descriptivo en cada página.</li>
+    <li>Tema de color consistente (sugerido: tonos azul corporativo).</li>
+    <li>Formato de números con separador de miles.</li>
+    <li><strong>Bonus (10 pts):</strong> Agrega en la Página 2 un visual de <em>decomposition tree</em> o <em>key influencers</em> para analizar los factores que más impactan el volumen de ventas. Incluye una caja de texto con tu interpretación del resultado.</li>
+  </ul></div>
+</div>
+
+<div class="submit-area">
+  <div class="score-bottom" id="score-bottom">Responde y verifica todas las preguntas antes de finalizar.</div>
+  <button class="submit-btn" onclick="confirmFinalize()">Finalizar prueba</button>
+</div>
+</div>
+
+<div id="result-area" style="display:none"></div>
+</div>
+
+<script>
+const STORAGE_KEY='prueba_pbi_planificador_v1';
+const QS=[
+  {tag:"Modelado",text:"Al conectar el archivo Excel con las ventas mensuales en formato 'ancho' (una columna por mes), ¿qué operación de Power Query debes aplicar para transformarlo al formato adecuado para análisis en Power BI?",multi:false,opts:["Transponer la tabla","Unpivot (Anular dinamización) de las columnas de meses","Dividir columna por delimitador","Agrupar por SKU"],correct:[1],pts:3,explain:"'Unpivot' (Anular dinamización) convierte columnas de meses en filas, generando un modelo largo con columnas Mes y Unidades. Este formato es el correcto para relacionar con una tabla Calendario y analizar con DAX."},
+  {tag:"Power Query",text:"En Power Query tienes una columna de ventas con valores negativos (errores de digitación) y nulos (datos faltantes). ¿Cuál es la forma más correcta de tratarlos para planificación?",multi:true,opts:["Reemplazar valores negativos por 0 usando 'Reemplazar valores'","Eliminar las filas con valores negativos o nulos","Usar una columna condicional: si valor < 0 entonces 0, si null entonces 0","Convertir la columna a texto para evitar errores"],correct:[0,2],pts:3,explain:"Reemplazar por 0 o usar una columna condicional son ambas válidas. Eliminar filas sería incorrecto porque se perderían todos los datos del SKU en ese mes. Convertir a texto rompería los cálculos numéricos."},
+  {tag:"DAX",text:"¿Cuál es la medida DAX correcta para calcular el crecimiento Year-over-Year (YoY) de las unidades vendidas?",multi:false,opts:["YoY% = ([Total Unidades] - [Total Unidades Año Anterior]) / [Total Unidades Año Anterior]","YoY% = DIVIDE([Total Unidades] - CALCULATE([Total Unidades], SAMEPERIODLASTYEAR(Calendario[Date])), CALCULATE([Total Unidades], SAMEPERIODLASTYEAR(Calendario[Date])))","YoY% = [Total Unidades] / CALCULATE([Total Unidades], DATEADD(Calendario[Date], -12, MONTH))","Las opciones B y C son equivalentes y correctas"],correct:[3],pts:3,explain:"Tanto SAMEPERIODLASTYEAR como DATEADD(-12, MONTH) calculan el período equivalente del año anterior. Ambas son válidas. La clave es usar DIVIDE para proteger la división por cero y referenciar la tabla Calendario marcada como tabla de fechas."},
+  {tag:"DAX",text:"Para calcular el MAD (Mean Absolute Deviation) entre ventas reales y forecast, ¿qué función DAX es más adecuada?",multi:false,opts:["MAD = AVERAGE(ABS([Real] - [Forecast]))","MAD = AVERAGEX(Tabla, ABS(Tabla[Real] - Tabla[Forecast]))","MAD = SUMX(Tabla, ABS(Tabla[Real] - Tabla[Forecast])) / COUNTROWS(Tabla)","Las opciones B y C son equivalentes"],correct:[3],pts:3,explain:"AVERAGEX itera sobre la tabla calculando ABS(Real-Forecast) fila a fila y promedia. SUMX(...)/COUNTROWS es matemáticamente equivalente. AVERAGE(ABS(...)) no funciona así en DAX porque ABS necesita iteración por fila. B y C son los enfoques correctos."},
+  {tag:"Visualización",text:"Para mostrar la evolución histórica de ventas de 6 SKUs en 18 meses comparando tendencias, ¿cuál visual de Power BI es el más adecuado?",multi:false,opts:["Gráfico de barras apiladas","Gráfico de líneas con leyenda por SKU","Gráfico de dispersión (scatter)","Mapa de árbol (Treemap)"],correct:[1],pts:3,explain:"El gráfico de líneas es ideal para mostrar tendencias temporales. Con el eje X en fechas y una línea por SKU en la leyenda, permite comparar comportamientos de demanda, identificar estacionalidad y detectar outliers visualmente."},
+  {tag:"Visualización",text:"¿Qué visual de Power BI permite al planificador ver rápidamente el error de forecast (MAD) por SKU de mayor a menor para priorizar acciones?",multi:false,opts:["Gráfico de líneas ordenado por MAD","Gráfico de barras ordenado descendentemente por MAD","Tabla con formato condicional de colores","Los visuales B y C son igualmente adecuados"],correct:[3],pts:3,explain:"Un gráfico de barras ordenado descendentemente permite identificar visualmente qué SKU tiene mayor error. Una tabla con formato condicional (escala de colores) también es muy efectiva para este análisis. Ambos son adecuados dependiendo del contexto y la audiencia."},
+  {tag:"Modelado",text:"¿Cuáles de las siguientes son buenas prácticas al modelar datos de planificación de la demanda en Power BI? (selecciona todas las correctas)",multi:true,opts:["Tener una tabla de hechos en formato largo (SKU, Mes, Unidades) relacionada con una tabla Calendario","Calcular el forecast directamente en Power Query como columnas nuevas","Crear una tabla de dimensiones separada para SKU/Producto","Usar medidas DAX para KPIs de forecast en lugar de columnas calculadas"],correct:[0,2,3],pts:3,explain:"El modelo estrella (tabla de hechos + dimensiones) es la arquitectura correcta. Las medidas DAX son preferibles a columnas calculadas para KPIs. Calcular forecasts en Power Query como columnas fijas no permite análisis dinámicos con DAX."},
+  {tag:"Análisis",text:"El BIAS de forecast de un SKU es -18%. ¿Qué significa esto para el planificador?",multi:false,opts:["El forecast sobreestimó la demanda en un 18% — hay riesgo de sobrestock","El forecast subestimó la demanda en un 18% — hay riesgo de quiebre de stock","El forecast tiene un error absoluto del 18%","El SKU creció un 18% respecto al período anterior"],correct:[1],pts:3,explain:"BIAS negativo = (Forecast - Real) / Real < 0 significa que el Forecast fue menor que la venta real. Es decir, el modelo subestimó la demanda, lo que genera riesgo de quiebre de stock. BIAS positivo indicaría sobreestimación y riesgo de sobrestock."},
+  {tag:"Análisis",text:"En el gráfico de líneas Real vs Forecast, observas que el forecast sigue bien la tendencia general pero no captura los picos de Oct-Dic. ¿Qué ajuste al modelo de forecast recomendarías?",multi:true,opts:["Aplicar índices de estacionalidad al método de forecast base","Aumentar el alpha (α) en la suavización exponencial para dar más peso a datos recientes","Usar un promedio móvil de más períodos (ej. 6 meses en lugar de 3)","Incorporar variables externas como temporada alta automotriz en el modelo"],correct:[0,3],pts:3,explain:"Los picos de Oct-Dic son estacionalidad. Aplicar índices estacionales (multiplicadores por mes) es la solución directa. Incorporar variables externas (eventos, temporadas) también mejora la precisión. Aumentar α o ampliar el PMS no resuelve la estacionalidad estructural."},
+];
+
+let state={checked:new Array(QS.length).fill(false),selections:QS.map(()=>[]),timerSec:3600,finished:false,startTs:Date.now()};
+
+function saveState(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}}
+function loadState(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(!raw)return false;
+    const s=JSON.parse(raw);
+    if(!s||s.finished===undefined)return false;
+    const elapsed=Math.floor((Date.now()-s.startTs)/1000);
+    s.timerSec=Math.max(0,3600-elapsed);
+    state=s;
+    state.selections=state.selections.map(a=>a||[]);
+    return true;
+  }catch(e){return false;}
+}
+function calcScore(){
+  let t=0;
+  QS.forEach((q,i)=>{
+    if(!state.checked[i])return;
+    const sel=state.selections[i];
+    if(sel.length===q.correct.length&&q.correct.every(c=>sel.includes(c)))t+=q.pts;
+  });
+  return t;
+}
+function updateScoreLive(){
+  const s=calcScore();
+  const max=QS.reduce((a,q)=>a+q.pts,0);
+  document.getElementById('score-live').textContent=s+' / '+max+' pts';
+  const ans=state.checked.filter(Boolean).length;
+  document.getElementById('score-bottom').textContent=ans+' de '+QS.length+' preguntas verificadas · Puntaje: '+s+' pts.';
+}
+function applyChecked(qi){
+  const q=QS[qi];const sel=state.selections[qi];const correct=q.correct;
+  const isRight=sel.length===correct.length&&correct.every(c=>sel.includes(c));
+  document.querySelectorAll('#opts-'+qi+' .opt').forEach((el,j)=>{
+    el.classList.remove('selected');el.style.pointerEvents='none';el.style.cursor='default';
+    if(correct.includes(j)&&sel.includes(j))el.classList.add('correct');
+    else if(!correct.includes(j)&&sel.includes(j))el.classList.add('incorrect');
+    else if(correct.includes(j)&&!sel.includes(j))el.classList.add('reveal');
+    const inp=el.querySelector('input');if(inp)inp.checked=sel.includes(j);
+  });
+  document.getElementById('fb-'+qi).innerHTML='<div class="fb '+(isRight?'ok':'fail')+'"><strong>'+(isRight?'✓ Correcto — +'+q.pts+' pts':'✗ Incorrecto — 0 pts')+'</strong>. '+q.explain+'</div>';
+  const btn=document.getElementById('chk-'+qi);if(btn)btn.style.display='none';
+}
+function renderQuestions(){
+  const area=document.getElementById('questions-area');
+  area.innerHTML=QS.map((q,i)=>`
+    <div class="q-card" id="qcard-${i}">
+      <div class="q-top">
+        <span class="q-num">Pregunta ${i+1} de ${QS.length}</span>
+        <div class="badges">
+          <span class="badge badge-tag">${q.tag}</span>
+          <span class="badge badge-pts">${q.pts} pts</span>
+          ${q.multi?'<span class="badge badge-multi">múltiple</span>':''}
+        </div>
+      </div>
+      <div class="q-text">${q.text}</div>
+      ${q.multi?'<div class="hint">Selecciona todas las opciones correctas.</div>':''}
+      <div class="opts" id="opts-${i}">
+        ${q.opts.map((o,j)=>`
+          <label class="opt" id="opt-${i}-${j}" onclick="toggleOpt(${i},${j},event)">
+            <input type="${q.multi?'checkbox':'radio'}" name="q${i}" value="${j}" style="pointer-events:none">
+            <span class="opt-label">${String.fromCharCode(65+j)}. ${o}</span>
+          </label>`).join('')}
+      </div>
+      <div id="fb-${i}"></div>
+      <button class="check-btn" onclick="checkQ(${i})" id="chk-${i}">Verificar respuesta</button>
+    </div>`).join('');
+  QS.forEach((_,i)=>{
+    state.selections[i].forEach(oi=>{
+      const el=document.getElementById('opt-'+i+'-'+oi);
+      if(el&&!state.checked[i])el.classList.add('selected');
+      const inp=el?el.querySelector('input'):null;if(inp)inp.checked=true;
+    });
+    if(state.checked[i])applyChecked(i);
+  });
+}
+function toggleOpt(qi,oi,e){
+  if(state.checked[qi]||state.finished)return;
+  const q=QS[qi];
+  if(!q.multi){state.selections[qi]=[];document.querySelectorAll('#opts-'+qi+' .opt').forEach(el=>el.classList.remove('selected'));}
+  const idx=state.selections[qi].indexOf(oi);
+  if(idx>-1){state.selections[qi].splice(idx,1);document.getElementById('opt-'+qi+'-'+oi).classList.remove('selected');}
+  else{state.selections[qi].push(oi);document.getElementById('opt-'+qi+'-'+oi).classList.add('selected');}
+  saveState();
+}
+function checkQ(qi){
+  if(state.checked[qi]||state.finished)return;
+  if(state.selections[qi].length===0){alert('Selecciona al menos una opción antes de verificar.');return;}
+  state.checked[qi]=true;saveState();applyChecked(qi);updateScoreLive();
+}
+function startTimer(){
+  updateTimerDisplay();
+  const iv=setInterval(()=>{
+    if(state.finished){clearInterval(iv);return;}
+    state.timerSec--;saveState();
+    if(state.timerSec<=0){clearInterval(iv);finalize(true);return;}
+    updateTimerDisplay();
+  },1000);
+}
+function updateTimerDisplay(){
+  const m=Math.floor(state.timerSec/60),s=state.timerSec%60;
+  const tv=document.getElementById('tval');
+  tv.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  if(state.timerSec<=300)tv.className='timer-val danger';
+  else if(state.timerSec<=600)tv.className='timer-val warn';
+  else tv.className='timer-val';
+  document.getElementById('tprog').style.width=(state.timerSec/3600*100).toFixed(2)+'%';
+}
+function confirmFinalize(){
+  const pending=state.checked.filter(Boolean).length;
+  const msg=pending<QS.length?'Aún tienes '+(QS.length-pending)+' pregunta(s) sin verificar. Contarán como incorrectas.\n\n¿Deseas finalizar?':'¿Confirmas finalizar la prueba? Esta acción no se puede deshacer.';
+  if(confirm(msg))finalize(false);
+}
+function finalize(byTimer){
+  if(state.finished)return;
+  state.finished=true;
+  QS.forEach((_,i)=>{if(!state.checked[i]){state.selections[i]=[];state.checked[i]=true;}});
+  saveState();showResult();
+}
+function showResult(){
+  const score=calcScore();
+  const maxTeo=QS.reduce((a,q)=>a+q.pts,0);
+  const pct=Math.round(score/maxTeo*100);
+  const elapsed=3600-state.timerSec;
+  const em=Math.floor(elapsed/60),es=elapsed%60;
+  let msg='';
+  if(pct>=89)msg='Excelente dominio teórico de Power BI aplicado a planificación. Pendiente revisión del tablero.';
+  else if(pct>=67)msg='Buen nivel. Refuerza DAX para métricas de forecast (MAD, BIAS, YoY). Pendiente revisión del tablero.';
+  else if(pct>=50)msg='Conocimiento básico presente. Revisa modelado y visualizaciones para planificación.';
+  else msg='Hay áreas importantes por reforzar. Se recomienda repasar antes de volver a presentar.';
+  document.getElementById('main-area').style.display='none';
+  const ra=document.getElementById('result-area');ra.style.display='block';
+  ra.innerHTML=`
+    <div class="result-panel">
+      <div class="result-big">${score}<span style="font-size:24px;color:#aaa;font-weight:400"> / ${maxTeo}</span></div>
+      <div class="result-sub">puntos teóricos &nbsp;·&nbsp; ${pct}% de acierto</div>
+      <p class="result-msg">${msg}</p>
+      <div class="breakdown">
+        <div class="bk-card"><div class="bk-val">${pct}%</div><div class="bk-lbl">acierto teórico</div></div>
+        <div class="bk-card"><div class="bk-val">${em}m ${es}s</div><div class="bk-lbl">tiempo usado</div></div>
+        <div class="bk-card"><div class="bk-val">43 pts</div><div class="bk-lbl">práctica (evaluador)</div></div>
+        <div class="bk-card"><div class="bk-val">${score+43} pts</div><div class="bk-lbl">máximo posible</div></div>
+      </div>
+      <div class="nota-ev">
+        <strong>Nota para el evaluador:</strong> El candidato obtuvo <strong>${score}/${maxTeo} pts</strong> en la parte teórica en <strong>${em}m ${es}s</strong>. La parte práctica (43 pts + 10 bonus) debe evaluarse revisando el archivo <strong>.pbix</strong> entregado.
+      </div>
+    </div>`;
+}
+const hadSave=loadState();
+if(state.finished){
+  document.querySelector('h1').insertAdjacentHTML('afterend','<div class="bloq-banner" style="margin-top:12px">Esta prueba ya fue finalizada. Las respuestas están bloqueadas.</div>');
+  renderQuestions();updateScoreLive();updateTimerDisplay();
+  document.getElementById('tval').className='timer-val danger';
+  document.getElementById('tprog').style.width='0%';
+  showResult();
+}else{
+  if(!hadSave){state.startTs=Date.now();saveState();}
+  renderQuestions();updateScoreLive();startTimer();
+}
+window.addEventListener('beforeunload',function(e){
+  if(!state.finished){e.preventDefault();e.returnValue='El tiempo sigue corriendo. Tus respuestas verificadas están guardadas.';}
+});
+</script>
+</body>
+</html>

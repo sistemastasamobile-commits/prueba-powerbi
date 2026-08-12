@@ -7,345 +7,466 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a18;min-height:100vh;padding:2rem 1rem}
-.container{max-width:780px;margin:0 auto}
+.wrap{max-width:760px;margin:0 auto}
 h1{font-size:22px;font-weight:600;margin-bottom:4px;color:#1F3864}
-.subtitle{font-size:14px;color:#666;margin-bottom:1.5rem}
-.timer-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:#fff;border:1px solid #e0e0dc;border-radius:10px;margin-bottom:1.5rem;position:sticky;top:12px;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.06)}
-.timer-label{font-size:12px;color:#888;margin-bottom:2px}
-.timer-val{font-size:20px;font-weight:600;letter-spacing:1px;color:#1a1a18;font-variant-numeric:tabular-nums}
-.timer-val.warn{color:#b45309}.timer-val.danger{color:#b91c1c}
-.prog-outer{height:5px;background:#e5e5e0;border-radius:3px;flex:1;margin:0 18px}
-.prog-inner{height:100%;background:#1F3864;border-radius:3px;transition:width 1s linear}
-.score-live-val{font-size:16px;font-weight:600;color:#1a1a18}
-.section-label{font-size:11px;font-weight:600;letter-spacing:.08em;color:#999;text-transform:uppercase;margin:2rem 0 .75rem}
+.sub{font-size:14px;color:#666;margin-bottom:1.5rem}
+.tbar{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:#fff;border:1px solid #e0e0dc;border-radius:10px;margin-bottom:1.5rem;position:sticky;top:12px;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.tlbl{font-size:12px;color:#888;margin-bottom:2px}
+.tval{font-size:20px;font-weight:600;letter-spacing:1px;color:#1a1a18;font-variant-numeric:tabular-nums}
+.tval.warn{color:#b45309}.tval.danger{color:#b91c1c}
+.prog-out{height:5px;background:#e5e5e0;border-radius:3px;flex:1;margin:0 18px}
+.prog-in{height:100%;background:#1F3864;border-radius:3px;transition:width 1s linear}
+.slv{font-size:16px;font-weight:600;color:#1a1a18}
+.sec{font-size:11px;font-weight:600;letter-spacing:.08em;color:#999;text-transform:uppercase;margin:2rem 0 .75rem}
 .intro{font-size:14px;color:#555;line-height:1.7;margin-bottom:1.25rem;background:#fff;border:1px solid #e0e0dc;border-radius:10px;padding:1rem 1.25rem}
-.q-card{background:#fff;border:1px solid #e0e0dc;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
-.q-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:.75rem}
-.q-num{font-size:12px;color:#aaa;white-space:nowrap;margin-top:2px}
-.badges{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
-.badge{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500}
-.badge-tag{background:#eff6ff;color:#1d4ed8}.badge-pts{background:#fffbeb;color:#92400e}
-.badge-multi{background:#f5f3ff;color:#6d28d9}.badge-ob{background:#fef2f2;color:#b91c1c}
-.badge-op{background:#f0fdf4;color:#166534}
-.q-text{font-size:14px;font-weight:600;color:#1a1a18;line-height:1.6;margin-bottom:.75rem}
+.qcard{background:#fff;border:1px solid #e0e0dc;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
+.qtop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:.75rem}
+.qnum{font-size:12px;color:#aaa;white-space:nowrap;margin-top:2px}
+.bdgs{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+.b{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500}
+.bt{background:#eff6ff;color:#1d4ed8}.bp{background:#fffbeb;color:#92400e}.bm{background:#f5f3ff;color:#6d28d9}
+.qtxt{font-size:14px;font-weight:600;color:#1a1a18;line-height:1.6;margin-bottom:.75rem}
 .hint{font-size:12px;color:#888;margin-bottom:.6rem;font-style:italic}
 .opts{display:flex;flex-direction:column;gap:8px}
 .opt{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border:1px solid #d1d5db;border-radius:8px;cursor:pointer;user-select:none;transition:background .12s,border-color .12s}
-.opt:hover{background:#f8f8f6;border-color:#9ca3af}
-.opt.selected{background:#eff6ff;border-color:#1F3864}
-.opt.correct{background:#f0fdf4;border-color:#16a34a}
-.opt.incorrect{background:#fef2f2;border-color:#dc2626}
-.opt.reveal{background:#f0fdf4;border-color:#16a34a;opacity:.65}
-.opt input{margin-top:3px;flex-shrink:0;accent-color:#1F3864;width:16px;height:16px}
-.opt-label{font-size:13px;color:#374151;line-height:1.5}
-.opt.selected .opt-label{color:#1d4ed8}.opt.correct .opt-label{color:#15803d}
-.opt.incorrect .opt-label{color:#b91c1c}.opt.reveal .opt-label{color:#15803d}
+.opt:hover:not(.done){background:#f8f8f6;border-color:#9ca3af}
+.opt.sel{background:#eff6ff;border-color:#1F3864}
+.opt.ok{background:#f0fdf4;border-color:#16a34a;cursor:default}
+.opt.bad{background:#fef2f2;border-color:#dc2626;cursor:default}
+.opt.rev{background:#f0fdf4;border-color:#16a34a;opacity:.6;cursor:default}
+.opt.done{cursor:default}
+.opt input{margin-top:3px;flex-shrink:0;accent-color:#1F3864;width:16px;height:16px;pointer-events:none}
+.olbl{font-size:13px;color:#374151;line-height:1.5}
+.opt.sel .olbl{color:#1d4ed8}
+.opt.ok .olbl{color:#15803d}
+.opt.bad .olbl{color:#b91c1c}
+.opt.rev .olbl{color:#15803d}
 .fb{margin-top:.75rem;padding:10px 14px;border-radius:8px;font-size:13px;line-height:1.6}
 .fb.ok{background:#f0fdf4;color:#15803d;border:1px solid #86efac}
-.fb.fail{background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5}
-.check-btn{margin-top:10px;padding:8px 18px;border:1px solid #d1d5db;border-radius:8px;background:#f9f9f7;color:#374151;font-size:13px;cursor:pointer;font-weight:500}
-.check-btn:hover{background:#f3f3f0}
-.practica-card{background:#fff;border:1px solid #e0e0dc;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
-.practica-title{font-size:14px;font-weight:600;color:#1a1a18;margin-bottom:.6rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.practica-body{font-size:13px;color:#555;line-height:1.7}
-.practica-body ul{padding-left:1.4rem;margin-top:.5rem}
-.practica-body li{margin-bottom:5px}
-.practica-body code{background:#f3f4f6;padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px}
+.fb.bad{background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5}
+.chkbtn{margin-top:10px;padding:8px 18px;border:1px solid #d1d5db;border-radius:8px;background:#f9f9f7;color:#374151;font-size:13px;cursor:pointer;font-weight:500}
+.chkbtn:hover{background:#f3f3f0}
+.pcard{background:#fff;border:1px solid #e0e0dc;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
+.ptitle{font-size:14px;font-weight:600;color:#1a1a18;margin-bottom:.6rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pbody{font-size:13px;color:#555;line-height:1.7}
+.pbody ul{padding-left:1.4rem;margin-top:.5rem}
+.pbody li{margin-bottom:5px}
+.pbody code{background:#f3f4f6;padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px}
+.bob{background:#fef2f2;color:#b91c1c}.bop{background:#f0fdf4;color:#166534}.bpts{background:#fffbeb;color:#92400e}
 .submit-area{margin-top:1.5rem;padding:1.25rem;background:#fff;border:1px solid #e0e0dc;border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
-.score-bottom{font-size:13px;color:#666}
-.submit-btn{padding:10px 26px;border:none;border-radius:8px;background:#1F3864;color:#fff;font-size:14px;cursor:pointer;font-weight:600}
-.submit-btn:hover{background:#2563eb}
-.result-panel{padding:2rem 1.5rem;background:#fff;border:1px solid #e0e0dc;border-radius:12px;text-align:center;margin-top:1rem}
-.result-big{font-size:56px;font-weight:700;color:#1F3864;line-height:1}
-.result-sub{font-size:15px;color:#888;margin-top:6px}
-.result-msg{font-size:15px;color:#374151;margin-top:1rem;line-height:1.6;max-width:500px;margin-left:auto;margin-right:auto}
-.breakdown{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:1.25rem;max-width:440px;margin-left:auto;margin-right:auto}
-.bk-card{background:#f9f9f7;border:1px solid #e5e5e0;border-radius:8px;padding:14px;text-align:center}
-.bk-val{font-size:22px;font-weight:700;color:#1a1a18}.bk-lbl{font-size:12px;color:#888;margin-top:3px}
-.nota-ev{margin-top:1.25rem;padding:12px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:13px;color:#92400e;text-align:left;max-width:500px;margin-left:auto;margin-right:auto}
-.restart{margin-top:1.25rem;padding:10px 26px;border:1px solid #d1d5db;border-radius:8px;background:#f9f9f7;color:#374151;font-size:14px;cursor:pointer}
-.bloq-banner{background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:13px;color:#b91c1c;margin-bottom:1rem;text-align:center;font-weight:500}
+.sbtm{font-size:13px;color:#666}
+.sbtn{padding:10px 26px;border:none;border-radius:8px;background:#1F3864;color:#fff;font-size:14px;cursor:pointer;font-weight:600}
+.sbtn:hover{background:#2563eb}
+.rbtn{padding:10px 18px;border:1px solid #d1d5db;border-radius:8px;background:#f9f9f7;color:#374151;font-size:13px;cursor:pointer;font-weight:500}
+.rbtn:hover{background:#f3f3f0}
+.rpanel{padding:2rem 1.5rem;background:#fff;border:1px solid #e0e0dc;border-radius:12px;text-align:center;margin-top:1rem}
+.rbig{font-size:56px;font-weight:700;color:#1F3864;line-height:1}
+.rsub{font-size:15px;color:#888;margin-top:6px}
+.rmsg{font-size:15px;color:#374151;margin-top:1rem;line-height:1.6;max-width:500px;margin-left:auto;margin-right:auto}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:1.25rem;max-width:440px;margin-left:auto;margin-right:auto}
+.gc{background:#f9f9f7;border:1px solid #e5e5e0;border-radius:8px;padding:14px;text-align:center}
+.gv{font-size:22px;font-weight:700;color:#1a1a18}.gl{font-size:12px;color:#888;margin-top:3px}
+.nota{margin-top:1.25rem;padding:12px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:13px;color:#92400e;text-align:left;max-width:500px;margin-left:auto;margin-right:auto}
 </style>
 </head>
 <body>
-<div class="container">
+<div class="wrap">
 <h1>Prueba Power BI — Planificador de la Demanda</h1>
-<p class="subtitle">Nivel Intermedio · Evaluación teórica + práctica · Tiempo máximo: 60 minutos</p>
+<p class="sub">Nivel Intermedio &nbsp;·&nbsp; Evaluaci&#243;n te&#243;rica + pr&#225;ctica &nbsp;·&nbsp; Tiempo m&#225;ximo: 60 minutos</p>
 
-<div class="timer-bar">
-  <div><div class="timer-label">Tiempo restante</div><div class="timer-val" id="tval">60:00</div></div>
-  <div class="prog-outer"><div class="prog-inner" id="tprog" style="width:100%"></div></div>
-  <div style="text-align:right"><div class="timer-label">Puntaje teórico</div><div class="score-live-val" id="score-live">0 / 18 pts</div></div>
+<div class="tbar">
+  <div><div class="tlbl">Tiempo restante</div><div class="tval" id="tval">60:00</div></div>
+  <div class="prog-out"><div class="prog-in" id="tprog" style="width:100%"></div></div>
+  <div style="text-align:right"><div class="tlbl">Puntaje te&#243;rico</div><div class="slv" id="slive">0 / 18 pts</div></div>
 </div>
 
-<div id="main-area">
+<div id="main">
 
 <div class="intro">
-  Esta prueba evalúa tu dominio de <strong>Power BI</strong> aplicado a la <strong>planificación de la demanda</strong>. Usa los datos del archivo Excel de la prueba anterior como fuente de datos para la parte práctica. Consta de:
+  Esta prueba eval&#250;a tu dominio de <strong>Power BI</strong> aplicado a la <strong>planificaci&#243;n de la demanda</strong>.
+  Usa los datos del archivo Excel de la prueba anterior como fuente de datos para la parte pr&#225;ctica.
   <ul style="margin-top:8px;padding-left:1.4rem;line-height:2">
-    <li><strong>Parte 1:</strong> 9 preguntas de opción múltiple (27 pts)</li>
+    <li><strong>Parte 1:</strong> 6 preguntas de opci&#243;n m&#250;ltiple (18 pts)</li>
     <li><strong>Parte 2:</strong> Tablero de demanda en Power BI Desktop (43 pts + 10 bonus)</li>
   </ul>
   Tiempo total: <strong>60 minutos</strong>. Las respuestas verificadas quedan bloqueadas aunque recargues el navegador.
 </div>
 
-<div class="section-label">Parte 1 — Preguntas de opción múltiple (27 pts)</div>
-<div id="questions-area"></div>
+<div class="sec">Parte 1 &#8212; Preguntas de opci&#243;n m&#250;ltiple (18 pts)</div>
+<div id="qa"></div>
 
-<div class="section-label" style="margin-top:2.5rem">Parte 2 — Tablero de Demanda en Power BI (43 pts)</div>
+<div class="sec" style="margin-top:2.5rem">Parte 2 &#8212; Tablero de Demanda en Power BI (43 pts)</div>
 
 <div class="intro">
-  Abre <strong>Power BI Desktop</strong> y construye un tablero de planificación de la demanda usando el archivo <strong>prueba_excel_planificador.xlsx</strong>. Entrega el archivo <strong>.pbix</strong> al evaluador al finalizar.
+  Abre <strong>Power BI Desktop</strong> y construye un tablero de planificaci&#243;n de la demanda usando el archivo
+  <strong>prueba_excel_planificador.xlsx</strong>. Entrega el archivo <strong>.pbix</strong> al evaluador al finalizar.
 </div>
 
-<div class="practica-card">
-  <div class="practica-title">📥 Req 1 — Conexión y modelo de datos <span class="badge badge-ob">Obligatorio</span> <span class="badge badge-pts">10 pts</span></div>
-  <div class="practica-body"><ul>
-    <li>Conectar las hojas <strong>Histórico Ventas</strong> y <strong>Forecast Demanda</strong> del archivo Excel.</li>
-    <li>En Power Query: limpiar los datos de la hoja Histórico — reemplazar valores negativos y nulos por <code>0</code> en las columnas de ventas mensuales.</li>
+<div class="pcard">
+  <div class="ptitle">&#128229; Req 1 &#8212; Conexi&#243;n y modelo de datos <span class="b bob">Obligatorio</span> <span class="b bpts">10 pts</span></div>
+  <div class="pbody"><ul>
+    <li>Conectar las hojas <strong>Hist&#243;rico Ventas</strong> y <strong>Forecast Demanda</strong> del archivo Excel.</li>
+    <li>En Power Query: reemplazar valores negativos y nulos por <code>0</code> en las columnas de ventas mensuales.</li>
     <li>Crear una <strong>tabla Calendario</strong> con <code>CALENDARAUTO()</code> marcada como tabla de fechas.</li>
-    <li>Transformar el formato de la tabla de ventas de <em>ancho a largo</em> (unpivot de las columnas de meses) para tener columnas: SKU, Producto, Categoría, Mes, Unidades.</li>
-    <li>Establecer relación entre la tabla de ventas (columna Mes) y la tabla Calendario.</li>
+    <li>Transformar la tabla de ventas de formato ancho a largo (Unpivot de columnas de meses) para tener columnas: SKU, Producto, Categor&#237;a, Mes, Unidades.</li>
+    <li>Establecer relaci&#243;n entre la tabla de ventas (columna Mes) y la tabla Calendario.</li>
   </ul></div>
 </div>
 
-<div class="practica-card">
-  <div class="practica-title">🧮 Req 2 — Medidas DAX de planificación <span class="badge badge-ob">Obligatorio</span> <span class="badge badge-pts">15 pts</span></div>
-  <div class="practica-body">Crear en una tabla <strong>_Medidas</strong>:
+<div class="pcard">
+  <div class="ptitle">&#129518; Req 2 &#8212; Medidas DAX de planificaci&#243;n <span class="b bob">Obligatorio</span> <span class="b bpts">15 pts</span></div>
+  <div class="pbody">Crear en una tabla <strong>_Medidas</strong>:
   <ul>
     <li><code>Total Unidades</code> = suma de unidades vendidas.</li>
     <li><code>Promedio Mensual</code> = promedio de unidades por mes.</li>
-    <li><code>Crecimiento YoY %</code> = comparación de unidades vs. mismo período año anterior.</li>
-    <li><code>MAD</code> = desviación media absoluta entre ventas reales y forecast (promedio de |Real - Forecast|).</li>
-    <li><code>BIAS %</code> = (Total Forecast - Total Real) / Total Real — indica si el forecast sobre o subestima.</li>
-    <li><code>Mejor SKU</code> = SKU con mayor volumen de ventas (usando <code>TOPN</code> o <code>RANKX</code>).</li>
+    <li><code>Crecimiento YoY %</code> = comparaci&#243;n de unidades vs. mismo per&#237;odo a&#241;o anterior.</li>
+    <li><code>MAD</code> = desviaci&#243;n media absoluta entre ventas reales y forecast.</li>
+    <li><code>BIAS %</code> = (Total Forecast &#8722; Total Real) / Total Real.</li>
+    <li><code>Mejor SKU</code> = SKU con mayor volumen de ventas usando RANKX o TOPN.</li>
   </ul></div>
 </div>
 
-<div class="practica-card">
-  <div class="practica-title">📊 Req 3 — Visualizaciones del tablero <span class="badge badge-ob">Obligatorio</span> <span class="badge badge-pts">15 pts</span></div>
-  <div class="practica-body">El tablero debe tener <strong>2 páginas</strong>:
+<div class="pcard">
+  <div class="ptitle">&#128202; Req 3 &#8212; Visualizaciones del tablero <span class="b bob">Obligatorio</span> <span class="b bpts">15 pts</span></div>
+  <div class="pbody">El tablero debe tener <strong>2 p&#225;ginas</strong>:
   <ul>
-    <li><strong>Página 1 — Histórico de Ventas:</strong>
-      <ul style="margin-top:4px">
-        <li>Gráfico de líneas: evolución mensual de Total Unidades por SKU (con leyenda por SKU).</li>
-        <li>Gráfico de barras agrupadas: ventas por Categoría comparando H1 2024 vs H2 2024 vs H1 2025.</li>
-        <li>Tabla de matriz: SKU × Mes con Total Unidades (con barras de datos en las celdas).</li>
-        <li>3 tarjetas (Cards): Total Unidades, Promedio Mensual, Mejor SKU.</li>
-        <li>Slicer: filtro por Categoría.</li>
-      </ul>
-    </li>
-    <li style="margin-top:8px"><strong>Página 2 — Forecast vs Real:</strong>
-      <ul style="margin-top:4px">
-        <li>Gráfico de líneas doble: Real vs Forecast por mes (dos series).</li>
-        <li>Gráfico de barras: MAD por SKU (para identificar cuál tiene mayor error de forecast).</li>
-        <li>2 tarjetas: MAD general, BIAS %.</li>
-        <li>Slicer: filtro por SKU.</li>
-      </ul>
-    </li>
+    <li><strong>P&#225;gina 1 &#8212; Hist&#243;rico de Ventas:</strong> gr&#225;fico de l&#237;neas por SKU, barras por categor&#237;a por semestre, matriz SKU&#215;Mes, 3 tarjetas, slicer por Categor&#237;a.</li>
+    <li><strong>P&#225;gina 2 &#8212; Forecast vs Real:</strong> l&#237;neas doble Real vs Forecast, barras MAD por SKU, 2 tarjetas (MAD y BIAS %), slicer por SKU.</li>
   </ul></div>
 </div>
 
-<div class="practica-card">
-  <div class="practica-title">✨ Req 4 — Formato y análisis <span class="badge badge-op">Opcional</span> <span class="badge badge-pts">3 pts + 10 bonus</span></div>
-  <div class="practica-body"><ul>
-    <li>Título descriptivo en cada página.</li>
-    <li>Tema de color consistente (sugerido: tonos azul corporativo).</li>
-    <li>Formato de números con separador de miles.</li>
-    <li><strong>Bonus (10 pts):</strong> Agrega en la Página 2 un visual de <em>decomposition tree</em> o <em>key influencers</em> para analizar los factores que más impactan el volumen de ventas. Incluye una caja de texto con tu interpretación del resultado.</li>
+<div class="pcard">
+  <div class="ptitle">&#10024; Req 4 &#8212; Formato y an&#225;lisis <span class="b bop">Opcional</span> <span class="b bpts">3 pts + 10 bonus</span></div>
+  <div class="pbody"><ul>
+    <li>T&#237;tulo descriptivo en cada p&#225;gina, tema de color consistente, n&#250;meros con separador de miles.</li>
+    <li><strong>Bonus (10 pts):</strong> Agrega un Decomposition Tree o Key Influencers para analizar factores que impactan el volumen de ventas, con una caja de texto con tu interpretaci&#243;n.</li>
   </ul></div>
 </div>
 
 <div class="submit-area">
-  <div class="score-bottom" id="score-bottom">Responde y verifica todas las preguntas antes de finalizar.</div>
-  <button style="padding:10px 18px;border:1px solid #d1d5db;border-radius:8px;background:#f9f9f7;color:#374151;font-size:13px;cursor:pointer;font-weight:500;margin-right:8px" onclick="resetPrueba()">↺ Reiniciar</button><button class="submit-btn" onclick="confirmFinalize()">Finalizar prueba</button>
+  <div class="sbtm" id="sbtm">Responde y verifica las preguntas antes de finalizar.</div>
+  <div style="display:flex;gap:8px">
+    <button class="rbtn" onclick="resetPrueba()">&#8635; Reiniciar</button>
+    <button class="sbtn" onclick="confirmFin()">Finalizar prueba</button>
+  </div>
 </div>
 </div>
 
-<div id="result-area" style="display:none"></div>
+<div id="result" style="display:none"></div>
 </div>
 
 <script>
-const STORAGE_KEY='prueba_pbi_planificador_v1';
-const QS=[
-  {tag:"Modelado",text:"Al conectar el archivo Excel con ventas en formato ancho (una columna por mes), \u00bfqu\u00e9 operaci\u00f3n de Power Query aplicas para transformarlo al formato correcto para Power BI?",multi:false,opts:["Transponer la tabla","Unpivot \u2014 Anular dinamizaci\u00f3n de las columnas de meses","Dividir columna por delimitador","Agrupar por SKU"],correct:[1],pts:3,explain:"Unpivot convierte columnas de meses en filas, generando un modelo largo con columnas Mes y Unidades. Este formato es el correcto para relacionar con una tabla Calendario y analizar con DAX. Transponer simplemente rota filas por columnas sin generar el modelo correcto."},
-  {tag:"DAX",text:"\u00bfCu\u00e1l medida DAX calcula correctamente el crecimiento Year-over-Year (YoY) protegiendo contra divisi\u00f3n por cero?",multi:false,opts:["YoY% = Unidades actuales dividido Unidades a\u00f1o anterior menos 1 (sin protecci\u00f3n por cero)","YoY% = DIVIDE(Unidades actuales menos Unidades a\u00f1o anterior usando SAMEPERIODLASTYEAR, Unidades a\u00f1o anterior)","YoY% = DIVIDE(Unidades actuales, Unidades a\u00f1o anterior usando DATEADD -1 a\u00f1o) menos 1","Las opciones B y C son correctas y equivalentes: ambas usan DIVIDE y referencian el a\u00f1o anterior correctamente"],correct:[3],pts:3,explain:"B usa SAMEPERIODLASTYEAR y C usa DATEADD con -1 a\u00f1o \u2014 ambas calculan el mismo per\u00edodo anterior y usan DIVIDE para proteger la divisi\u00f3n por cero. Son funcionalmente equivalentes. La opci\u00f3n A no usa DIVIDE y puede generar errores cuando no hay datos del a\u00f1o anterior."},
-  {tag:"DAX",text:"Para calcular el MAD (Mean Absolute Deviation) entre ventas reales y forecast fila a fila, \u00bfqu\u00e9 funci\u00f3n DAX es la correcta?",multi:false,opts:["AVERAGEX iterando la tabla y calculando ABS(Real menos Forecast) por fila","AVERAGE aplicado directamente sobre la diferencia de columnas sin iterador","SUMX de las diferencias sin valor absoluto dividido COUNTROWS","SUM de ABS directo sobre la columna de diferencias sin iterador"],correct:[0],pts:3,explain:"AVERAGEX itera fila a fila calculando ABS(Real-Forecast) y promedia \u2014 es la forma correcta en DAX para operaciones por fila. La opci\u00f3n B parece l\u00f3gica pero ABS sobre una columna completa sin iterador no funciona correctamente en DAX. La opci\u00f3n C no usa ABS por lo que errores positivos y negativos se cancelar\u00edan. La opci\u00f3n D tampoco itera correctamente."},
-  {tag:"Visualizaci\u00f3n",text:"Para mostrar la evoluci\u00f3n hist\u00f3rica de ventas de 6 SKUs en 18 meses comparando tendencias e identificando estacionalidad, \u00bfcu\u00e1l visual de Power BI es el m\u00e1s adecuado?",multi:false,opts:["Gr\u00e1fico de barras apiladas por mes","Gr\u00e1fico de l\u00edneas con una l\u00ednea por SKU en la leyenda","Gr\u00e1fico de dispersi\u00f3n (scatter plot) con SKU en el eje X","Mapa de \u00e1rbol (Treemap) con tama\u00f1o por volumen de ventas"],correct:[1],pts:3,explain:"El gr\u00e1fico de l\u00edneas es ideal para tendencias temporales con m\u00faltiples series. Con el eje X en fechas y una l\u00ednea por SKU permite comparar comportamientos, identificar estacionalidad y detectar outliers. El de barras apiladas dificulta comparar tendencias individuales. El scatter y treemap no muestran evoluci\u00f3n temporal."},
-  {tag:"Visualizaci\u00f3n",text:"\u00bfQu\u00e9 visuals de Power BI permiten identificar qu\u00e9 SKU tiene mayor error de forecast (MAD) para priorizar acciones? (selecciona todos los que apliquen)",multi:true,opts:["Gr\u00e1fico de barras ordenado descendentemente por MAD","Tabla con formato condicional de barras de datos o escala de colores por MAD","Gr\u00e1fico de l\u00edneas con MAD en el eje Y por mes","Tarjeta (Card) mostrando el MAD total consolidado"],correct:[0,1],pts:3,explain:"El gr\u00e1fico de barras ordenado descendentemente identifica el SKU con mayor error de un vistazo. La tabla con formato condicional tambi\u00e9n es efectiva y muestra el valor exacto. El gr\u00e1fico de l\u00edneas por mes no compara SKUs entre s\u00ed. La tarjeta solo muestra un agregado total sin desglose por SKU."},
-  {tag:"An\u00e1lisis",text:"El BIAS de forecast de un SKU es -18%, calculado como (Forecast - Real) / Real. \u00bfQu\u00e9 conclusi\u00f3n debe sacar el planificador?",multi:false,opts:["El forecast sobreestim\u00f3 la demanda \u2014 hay riesgo de acumular sobrestock","El forecast subestim\u00f3 la demanda \u2014 hay riesgo de quiebre de stock","El forecast tiene un error absoluto promedio del 18% (equivale al MAD)","El SKU tuvo una ca\u00edda del 18% en ventas respecto al per\u00edodo anterior"],correct:[1],pts:3,explain:"BIAS = (Forecast - Real) / Real = -18% significa que el Forecast fue un 18% menor que la venta real. El modelo subestim\u00f3 la demanda, generando \u00f3rdenes de compra insuficientes y riesgo de quiebre de stock. BIAS positivo indicar\u00eda sobreestimaci\u00f3n. El MAD mide el error absoluto promedio y es una m\u00e9trica distinta al BIAS."}
+const KEY = 'pbi_planificador_v3';
+
+const QS = [
+  {
+    tag: "Modelado", pts: 3, multi: false,
+    text: "Al conectar el archivo Excel con ventas en formato ancho (una columna por mes), \u00bfqu\u00e9 operaci\u00f3n de Power Query aplicas para transformarlo al formato correcto para Power BI?",
+    opts: [
+      "Transponer la tabla",
+      "Unpivot \u2014 Anular dinamizaci\u00f3n de las columnas de meses",
+      "Dividir columna por delimitador",
+      "Agrupar por SKU"
+    ],
+    correct: [1],
+    explain: "Unpivot convierte columnas de meses en filas, generando un modelo largo con columnas Mes y Unidades. Este formato es el correcto para relacionar con una tabla Calendario y analizar con DAX. Transponer simplemente rota filas por columnas sin generar el modelo correcto."
+  },
+  {
+    tag: "DAX", pts: 3, multi: false,
+    text: "\u00bfCu\u00e1l medida DAX calcula correctamente el crecimiento Year-over-Year (YoY) protegiendo contra divisi\u00f3n por cero?",
+    opts: [
+      "YoY% = Unidades actuales dividido Unidades a\u00f1o anterior menos 1, sin protecci\u00f3n por cero",
+      "YoY% = DIVIDE(Unidades actuales menos Unidades a\u00f1o anterior con SAMEPERIODLASTYEAR, Unidades a\u00f1o anterior)",
+      "YoY% = DIVIDE(Unidades actuales, Unidades a\u00f1o anterior con DATEADD -1 a\u00f1o) menos 1",
+      "Las opciones B y C son correctas y equivalentes: ambas usan DIVIDE y el a\u00f1o anterior correctamente"
+    ],
+    correct: [3],
+    explain: "B usa SAMEPERIODLASTYEAR y C usa DATEADD -1 a\u00f1o \u2014 ambas calculan el mismo per\u00edodo anterior y usan DIVIDE para proteger la divisi\u00f3n por cero. Son funcionalmente equivalentes. La opci\u00f3n A no usa DIVIDE y puede generar errores cuando no hay datos del a\u00f1o anterior."
+  },
+  {
+    tag: "DAX", pts: 3, multi: false,
+    text: "Para calcular el MAD (Mean Absolute Deviation) entre ventas reales y forecast fila a fila, \u00bfqu\u00e9 funci\u00f3n DAX es la correcta?",
+    opts: [
+      "AVERAGEX iterando la tabla y calculando ABS(Real menos Forecast) por fila",
+      "AVERAGE aplicado directamente sobre la diferencia de columnas sin iterador",
+      "SUMX de las diferencias sin valor absoluto dividido COUNTROWS",
+      "SUM de ABS directo sobre la columna de diferencias sin iterador"
+    ],
+    correct: [0],
+    explain: "AVERAGEX itera fila a fila calculando ABS(Real-Forecast) y promedia \u2014 es la forma correcta en DAX para operaciones por fila. La opci\u00f3n B no funciona correctamente sin iterador. La opci\u00f3n C no usa ABS por lo que errores positivos y negativos se cancelar\u00edan. La opci\u00f3n D tampoco itera correctamente."
+  },
+  {
+    tag: "Visualizaci\u00f3n", pts: 3, multi: false,
+    text: "Para mostrar la evoluci\u00f3n hist\u00f3rica de ventas de 6 SKUs en 18 meses comparando tendencias e identificando estacionalidad, \u00bfcu\u00e1l visual de Power BI es el m\u00e1s adecuado?",
+    opts: [
+      "Gr\u00e1fico de barras apiladas por mes",
+      "Gr\u00e1fico de l\u00edneas con una l\u00ednea por SKU en la leyenda",
+      "Gr\u00e1fico de dispersi\u00f3n con SKU en el eje X",
+      "Mapa de \u00e1rbol con tama\u00f1o por volumen de ventas"
+    ],
+    correct: [1],
+    explain: "El gr\u00e1fico de l\u00edneas es ideal para tendencias temporales con m\u00faltiples series. Con el eje X en fechas y una l\u00ednea por SKU permite comparar comportamientos, identificar estacionalidad y detectar outliers. El de barras apiladas dificulta comparar tendencias individuales. El scatter y treemap no muestran evoluci\u00f3n temporal."
+  },
+  {
+    tag: "Visualizaci\u00f3n", pts: 3, multi: true,
+    text: "\u00bfQu\u00e9 visuals de Power BI permiten identificar qu\u00e9 SKU tiene mayor error de forecast para priorizar acciones? Selecciona todos los que apliquen.",
+    opts: [
+      "Gr\u00e1fico de barras ordenado descendentemente por MAD",
+      "Tabla con formato condicional de barras de datos o escala de colores por MAD",
+      "Gr\u00e1fico de l\u00edneas con MAD en el eje Y por mes",
+      "Tarjeta mostrando el MAD total consolidado"
+    ],
+    correct: [0, 1],
+    explain: "El gr\u00e1fico de barras ordenado descendentemente identifica el SKU con mayor error de un vistazo. La tabla con formato condicional tambi\u00e9n es efectiva y muestra el valor exacto. El gr\u00e1fico de l\u00edneas por mes no compara SKUs entre s\u00ed. La tarjeta solo muestra un agregado total sin desglose."
+  },
+  {
+    tag: "An\u00e1lisis", pts: 3, multi: false,
+    text: "El BIAS de forecast de un SKU es -18%, calculado como (Forecast - Real) / Real. \u00bfQu\u00e9 conclusi\u00f3n debe sacar el planificador?",
+    opts: [
+      "El forecast sobreestim\u00f3 la demanda \u2014 hay riesgo de acumular sobrestock",
+      "El forecast subestim\u00f3 la demanda \u2014 hay riesgo de quiebre de stock",
+      "El forecast tiene un error absoluto promedio del 18%, equivale al MAD",
+      "El SKU tuvo una ca\u00edda del 18% en ventas respecto al per\u00edodo anterior"
+    ],
+    correct: [1],
+    explain: "BIAS = (Forecast - Real) / Real = -18% significa que el Forecast fue un 18% menor que la venta real. El modelo subestim\u00f3 la demanda generando \u00f3rdenes insuficientes y riesgo de quiebre de stock. BIAS positivo indicar\u00eda sobreestimaci\u00f3n y riesgo de sobrestock. El MAD es una m\u00e9trica distinta al BIAS."
+  }
 ];
 
-let state={checked:new Array(QS.length).fill(false),selections:QS.map(()=>[]),timerSec:3600,finished:false,startTs:Date.now()};
+// ── State
+let state = {
+  sel: QS.map(() => []),
+  checked: QS.map(() => false),
+  finished: false,
+  startTs: Date.now(),
+  timerSec: 3600
+};
 
-function saveState(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}}
-function loadState(){
-  try{
-    const raw=localStorage.getItem(STORAGE_KEY);
-    if(!raw)return false;
-    const s=JSON.parse(raw);
-    if(!s||s.finished===undefined)return false;
-    const elapsed=Math.floor((Date.now()-s.startTs)/1000);
-    s.timerSec=Math.max(0,3600-elapsed);
-    state=s;
-    state.selections=state.selections.map(a=>a||[]);
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+function load() {
+  try {
+    const r = localStorage.getItem(KEY);
+    if (!r) return false;
+    const s = JSON.parse(r);
+    if (!s || !Array.isArray(s.sel) || s.sel.length !== QS.length) return false;
+    const elapsed = Math.floor((Date.now() - s.startTs) / 1000);
+    s.timerSec = Math.max(0, 3600 - elapsed);
+    state = s;
     return true;
-  }catch(e){return false;}
+  } catch(e) { return false; }
 }
-function calcScore(){
-  let t=0;
-  QS.forEach((q,i)=>{
-    if(!state.checked[i])return;
-    const sel=state.selections[i];
-    if(sel.length===q.correct.length&&q.correct.every(c=>sel.includes(c)))t+=q.pts;
-  });
-  return t;
+
+// ── Score
+function score() {
+  return QS.reduce((acc, q, i) => {
+    if (!state.checked[i]) return acc;
+    const s = state.sel[i];
+    const ok = s.length === q.correct.length && q.correct.every(c => s.includes(c));
+    return acc + (ok ? q.pts : 0);
+  }, 0);
 }
-function updateScoreLive(){
-  const s=calcScore();
-  const max=QS.reduce((a,q)=>a+q.pts,0);
-  document.getElementById('score-live').textContent=s+' / '+max+' pts';
-  const ans=state.checked.filter(Boolean).length;
-  document.getElementById('score-bottom').textContent=ans+' de '+QS.length+' preguntas verificadas · Puntaje: '+s+' pts.';
+
+function maxPts() { return QS.reduce((a, q) => a + q.pts, 0); }
+
+function updateScore() {
+  const s = score(), m = maxPts();
+  document.getElementById('slive').textContent = s + ' / ' + m + ' pts';
+  const done = state.checked.filter(Boolean).length;
+  document.getElementById('sbtm').textContent =
+    done + ' de ' + QS.length + ' preguntas verificadas \u00b7 Puntaje: ' + s + ' pts.';
 }
-function applyChecked(qi){
-  const q=QS[qi];const sel=state.selections[qi];const correct=q.correct;
-  const isRight=sel.length===correct.length&&correct.every(c=>sel.includes(c));
-  document.querySelectorAll('#opts-'+qi+' .opt').forEach((el,j)=>{
-    el.classList.remove('selected');el.style.pointerEvents='none';el.style.cursor='default';
-    if(correct.includes(j)&&sel.includes(j))el.classList.add('correct');
-    else if(!correct.includes(j)&&sel.includes(j))el.classList.add('incorrect');
-    else if(correct.includes(j)&&!sel.includes(j))el.classList.add('reveal');
-    const inp=el.querySelector('input');if(inp)inp.checked=sel.includes(j);
-  });
-  document.getElementById('fb-'+qi).innerHTML='<div class="fb '+(isRight?'ok':'fail')+'"><strong>'+(isRight?'✓ Correcto — +'+q.pts+' pts':'✗ Incorrecto — 0 pts')+'</strong>. '+q.explain+'</div>';
-  const btn=document.getElementById('chk-'+qi);if(btn)btn.style.display='none';
-}
-function renderQuestions(){
-  const area=document.getElementById('questions-area');
-  area.innerHTML=QS.map((q,i)=>`
-    <div class="q-card" id="qcard-${i}">
-      <div class="q-top">
-        <span class="q-num">Pregunta ${i+1} de ${QS.length}</span>
-        <div class="badges">
-          <span class="badge badge-tag">${q.tag}</span>
-          <span class="badge badge-pts">${q.pts} pts</span>
-          ${q.multi?'<span class="badge badge-multi">múltiple</span>':''}
+
+// ── Render questions
+function render() {
+  const qa = document.getElementById('qa');
+  qa.innerHTML = QS.map((q, i) => `
+    <div class="qcard" id="qc${i}">
+      <div class="qtop">
+        <span class="qnum">Pregunta ${i+1} de ${QS.length}</span>
+        <div class="bdgs">
+          <span class="b bt">${q.tag}</span>
+          <span class="b bp">${q.pts} pts</span>
+          ${q.multi ? '<span class="b bm">m\u00faltiple</span>' : ''}
         </div>
       </div>
-      <div class="q-text">${q.text}</div>
-      ${q.multi?'<div class="hint">Selecciona todas las opciones correctas.</div>':''}
-      <div class="opts" id="opts-${i}">
-        ${q.opts.map((o,j)=>`
-          <label class="opt" id="opt-${i}-${j}" onclick="toggleOpt(${i},${j},event)">
-            <input type="${q.multi?'checkbox':'radio'}" name="q${i}" value="${j}" style="pointer-events:none">
-            <span class="opt-label">${String.fromCharCode(65+j)}. ${o}</span>
+      <div class="qtxt">${q.text}</div>
+      ${q.multi ? '<div class="hint">Selecciona todas las opciones correctas.</div>' : ''}
+      <div class="opts" id="opts${i}">
+        ${q.opts.map((o, j) => `
+          <label class="opt" id="o${i}_${j}" onclick="pick(${i},${j})">
+            <input type="${q.multi ? 'checkbox' : 'radio'}" name="q${i}">
+            <span class="olbl">${String.fromCharCode(65+j)}. ${o}</span>
           </label>`).join('')}
       </div>
-      <div id="fb-${i}"></div>
-      <button class="check-btn" onclick="checkQ(${i})" id="chk-${i}">Verificar respuesta</button>
+      <div id="fb${i}"></div>
+      <button class="chkbtn" id="cb${i}" onclick="check(${i})">Verificar respuesta</button>
     </div>`).join('');
-  QS.forEach((_,i)=>{
-    state.selections[i].forEach(oi=>{
-      const el=document.getElementById('opt-'+i+'-'+oi);
-      if(el&&!state.checked[i])el.classList.add('selected');
-      const inp=el?el.querySelector('input'):null;if(inp)inp.checked=true;
+
+  // Restore state
+  QS.forEach((q, i) => {
+    state.sel[i].forEach(j => {
+      const el = document.getElementById('o' + i + '_' + j);
+      if (el) {
+        el.classList.add('sel');
+        const inp = el.querySelector('input');
+        if (inp) inp.checked = true;
+      }
     });
-    if(state.checked[i])applyChecked(i);
+    if (state.checked[i]) applyResult(i);
   });
 }
-function toggleOpt(qi,oi,e){
-  if(state.checked[qi]||state.finished)return;
-  const q=QS[qi];
-  if(!q.multi){state.selections[qi]=[];document.querySelectorAll('#opts-'+qi+' .opt').forEach(el=>el.classList.remove('selected'));}
-  const idx=state.selections[qi].indexOf(oi);
-  if(idx>-1){state.selections[qi].splice(idx,1);document.getElementById('opt-'+qi+'-'+oi).classList.remove('selected');}
-  else{state.selections[qi].push(oi);document.getElementById('opt-'+qi+'-'+oi).classList.add('selected');}
-  saveState();
+
+function pick(qi, oi) {
+  if (state.checked[qi] || state.finished) return;
+  const q = QS[qi];
+  if (!q.multi) {
+    state.sel[qi] = [];
+    document.querySelectorAll('#opts' + qi + ' .opt').forEach(el => {
+      el.classList.remove('sel');
+      const inp = el.querySelector('input');
+      if (inp) inp.checked = false;
+    });
+  }
+  const idx = state.sel[qi].indexOf(oi);
+  const el = document.getElementById('o' + qi + '_' + oi);
+  const inp = el ? el.querySelector('input') : null;
+  if (idx > -1) {
+    state.sel[qi].splice(idx, 1);
+    if (el) el.classList.remove('sel');
+    if (inp) inp.checked = false;
+  } else {
+    state.sel[qi].push(oi);
+    if (el) el.classList.add('sel');
+    if (inp) inp.checked = true;
+  }
+  save();
 }
-function checkQ(qi){
-  if(state.checked[qi]||state.finished)return;
-  if(state.selections[qi].length===0){alert('Selecciona al menos una opción antes de verificar.');return;}
-  state.checked[qi]=true;saveState();applyChecked(qi);updateScoreLive();
+
+function applyResult(qi) {
+  const q = QS[qi];
+  const sel = state.sel[qi];
+  const isOk = sel.length === q.correct.length && q.correct.every(c => sel.includes(c));
+  document.querySelectorAll('#opts' + qi + ' .opt').forEach((el, j) => {
+    el.classList.remove('sel', 'done');
+    el.classList.add('done');
+    if (q.correct.includes(j) && sel.includes(j)) el.classList.add('ok');
+    else if (!q.correct.includes(j) && sel.includes(j)) el.classList.add('bad');
+    else if (q.correct.includes(j) && !sel.includes(j)) el.classList.add('rev');
+    const inp = el.querySelector('input');
+    if (inp) inp.checked = sel.includes(j);
+  });
+  document.getElementById('fb' + qi).innerHTML =
+    '<div class="fb ' + (isOk ? 'ok' : 'bad') + '"><strong>' +
+    (isOk ? '\u2713 Correcto \u2014 +' + q.pts + ' pts' : '\u2717 Incorrecto \u2014 0 pts') +
+    '</strong>. ' + q.explain + '</div>';
+  const cb = document.getElementById('cb' + qi);
+  if (cb) cb.style.display = 'none';
 }
-function startTimer(){
-  updateTimerDisplay();
-  const iv=setInterval(()=>{
-    if(state.finished){clearInterval(iv);return;}
-    state.timerSec--;saveState();
-    if(state.timerSec<=0){clearInterval(iv);finalize(true);return;}
-    updateTimerDisplay();
-  },1000);
+
+function check(qi) {
+  if (state.checked[qi] || state.finished) return;
+  if (state.sel[qi].length === 0) { alert('Selecciona al menos una opci\u00f3n antes de verificar.'); return; }
+  state.checked[qi] = true;
+  save();
+  applyResult(qi);
+  updateScore();
 }
-function updateTimerDisplay(){
-  const m=Math.floor(state.timerSec/60),s=state.timerSec%60;
-  const tv=document.getElementById('tval');
-  tv.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-  if(state.timerSec<=300)tv.className='timer-val danger';
-  else if(state.timerSec<=600)tv.className='timer-val warn';
-  else tv.className='timer-val';
-  document.getElementById('tprog').style.width=(state.timerSec/3600*100).toFixed(2)+'%';
+
+// ── Timer
+function tickTimer() {
+  const m = Math.floor(state.timerSec / 60), s = state.timerSec % 60;
+  const el = document.getElementById('tval');
+  el.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  el.className = 'tval' + (state.timerSec <= 300 ? ' danger' : state.timerSec <= 600 ? ' warn' : '');
+  document.getElementById('tprog').style.width = (state.timerSec / 3600 * 100).toFixed(2) + '%';
 }
-function confirmFinalize(){
-  const pending=state.checked.filter(Boolean).length;
-  const msg=pending<QS.length?'Aún tienes '+(QS.length-pending)+' pregunta(s) sin verificar. Contarán como incorrectas.\n\n¿Deseas finalizar?':'¿Confirmas finalizar la prueba? Esta acción no se puede deshacer.';
-  if(confirm(msg))finalize(false);
+
+function startTimer() {
+  tickTimer();
+  const iv = setInterval(() => {
+    if (state.finished) { clearInterval(iv); return; }
+    state.timerSec--;
+    save();
+    if (state.timerSec <= 0) { clearInterval(iv); fin(); return; }
+    tickTimer();
+  }, 1000);
 }
-function finalize(byTimer){
-  if(state.finished)return;
-  state.finished=true;
-  QS.forEach((_,i)=>{if(!state.checked[i]){state.selections[i]=[];state.checked[i]=true;}});
-  saveState();showResult();
+
+// ── Finalize
+function confirmFin() {
+  const pending = state.checked.filter(Boolean).length;
+  const msg = pending < QS.length
+    ? 'A\u00fan tienes ' + (QS.length - pending) + ' pregunta(s) sin verificar. Contar\u00e1n como incorrectas.\n\n\u00bfDeseas finalizar?'
+    : '\u00bfConfirmas finalizar la prueba? Esta acci\u00f3n no se puede deshacer.';
+  if (confirm(msg)) fin();
 }
-function showResult(){
-  const score=calcScore();
-  const maxTeo=QS.reduce((a,q)=>a+q.pts,0);
-  const pct=Math.round(score/maxTeo*100);
-  const elapsed=3600-state.timerSec;
-  const em=Math.floor(elapsed/60),es=elapsed%60;
-  let msg='';
-  if(pct>=89)msg='Excelente dominio teórico de Power BI aplicado a planificación. Pendiente revisión del tablero.';
-  else if(pct>=67)msg='Buen nivel. Refuerza DAX para métricas de forecast (MAD, BIAS, YoY). Pendiente revisión del tablero.';
-  else if(pct>=50)msg='Conocimiento básico presente. Revisa modelado y visualizaciones para planificación.';
-  else msg='Hay áreas importantes por reforzar. Se recomienda repasar antes de volver a presentar.';
-  document.getElementById('main-area').style.display='none';
-  const ra=document.getElementById('result-area');ra.style.display='block';
-  ra.innerHTML=`
-    <div class="result-panel">
-      <div class="result-big">${score}<span style="font-size:24px;color:#aaa;font-weight:400"> / ${maxTeo}</span></div>
-      <div class="result-sub">puntos teóricos &nbsp;·&nbsp; ${pct}% de acierto</div>
-      <p class="result-msg">${msg}</p>
-      <div class="breakdown">
-        <div class="bk-card"><div class="bk-val">${pct}%</div><div class="bk-lbl">acierto teórico</div></div>
-        <div class="bk-card"><div class="bk-val">${em}m ${es}s</div><div class="bk-lbl">tiempo usado</div></div>
-        <div class="bk-card"><div class="bk-val">43 pts</div><div class="bk-lbl">práctica (evaluador)</div></div>
-        <div class="bk-card"><div class="bk-val">${score+43} pts</div><div class="bk-lbl">máximo posible</div></div>
+
+function fin() {
+  if (state.finished) return;
+  state.finished = true;
+  QS.forEach((_, i) => { if (!state.checked[i]) { state.sel[i] = []; state.checked[i] = true; } });
+  save();
+  showResult();
+}
+
+function showResult() {
+  const s = score(), m = maxPts(), pct = Math.round(s / m * 100);
+  const elapsed = 3600 - state.timerSec;
+  const em = Math.floor(elapsed / 60), es = elapsed % 60;
+  const msg = pct >= 89 ? 'Excelente dominio te\u00f3rico de Power BI aplicado a planificaci\u00f3n. Pendiente revisi\u00f3n del tablero.'
+    : pct >= 67 ? 'Buen nivel. Refuerza DAX para m\u00e9tricas de forecast (MAD, BIAS, YoY). Pendiente revisi\u00f3n del tablero.'
+    : pct >= 50 ? 'Conocimiento b\u00e1sico presente. Revisa modelado y visualizaciones para planificaci\u00f3n.'
+    : 'Hay \u00e1reas importantes por reforzar. Se recomienda repasar antes de volver a presentar.';
+  document.getElementById('main').style.display = 'none';
+  const rd = document.getElementById('result');
+  rd.style.display = 'block';
+  rd.innerHTML = `
+    <div class="rpanel">
+      <div class="rbig">${s}<span style="font-size:24px;color:#aaa;font-weight:400"> / ${m}</span></div>
+      <div class="rsub">puntos te\u00f3ricos &nbsp;\u00b7&nbsp; ${pct}% de acierto</div>
+      <p class="rmsg">${msg}</p>
+      <div class="grid">
+        <div class="gc"><div class="gv">${pct}%</div><div class="gl">acierto te\u00f3rico</div></div>
+        <div class="gc"><div class="gv">${em}m ${es}s</div><div class="gl">tiempo usado</div></div>
+        <div class="gc"><div class="gv">43 pts</div><div class="gl">pr\u00e1ctica (evaluador)</div></div>
+        <div class="gc"><div class="gv">${s+43} pts</div><div class="gl">m\u00e1ximo posible</div></div>
       </div>
-      <div class="nota-ev">
-        <strong>Nota para el evaluador:</strong> El candidato obtuvo <strong>${score}/${maxTeo} pts</strong> en la parte teórica en <strong>${em}m ${es}s</strong>. La parte práctica (43 pts + 10 bonus) debe evaluarse revisando el archivo <strong>.pbix</strong> entregado.
+      <div class="nota">
+        <strong>Nota para el evaluador:</strong> El candidato obtuvo <strong>${s}/${m} pts</strong>
+        en la parte te\u00f3rica en <strong>${em}m ${es}s</strong>.
+        La parte pr\u00e1ctica (43 pts + 10 bonus) debe evaluarse revisando el archivo <strong>.pbix</strong> entregado.
       </div>
+      <button class="rbtn" style="margin-top:1.25rem" onclick="resetPrueba()">&#8635; Reiniciar prueba</button>
     </div>`;
 }
-function resetPrueba(){
-  if(!confirm('¿Seguro que deseas reiniciar la prueba? Se borrarán todas las respuestas y el tiempo volverá a 60 minutos.')) return;
-  try{localStorage.removeItem(STORAGE_KEY);}catch(e){}
+
+// ── Reset
+function resetPrueba() {
+  if (!confirm('\u00bfSeguro que deseas reiniciar? Se borrar\u00e1n todas las respuestas y el tiempo volver\u00e1 a 60 minutos.')) return;
+  try { localStorage.removeItem(KEY); } catch(e) {}
   location.reload();
 }
 
-const hadSave=loadState();
-if(state.finished){
-  document.querySelector('h1').insertAdjacentHTML('afterend','<div class="bloq-banner" style="margin-top:12px">Esta prueba ya fue finalizada. Las respuestas están bloqueadas. <button onclick="resetPrueba()" style="margin-left:12px;padding:4px 14px;border:1px solid #b91c1c;border-radius:6px;background:#fff;color:#b91c1c;cursor:pointer;font-size:12px;font-weight:600">↺ Reiniciar prueba</button></div>');
-  renderQuestions();updateScoreLive();updateTimerDisplay();
-  document.getElementById('tval').className='timer-val danger';
-  document.getElementById('tprog').style.width='0%';
-  showResult();
-}else{
-  if(!hadSave){state.startTs=Date.now();saveState();}
-  renderQuestions();updateScoreLive();startTimer();
-}
-window.addEventListener('beforeunload',function(e){
-  if(!state.finished){e.preventDefault();e.returnValue='El tiempo sigue corriendo. Tus respuestas verificadas están guardadas.';}
+// ── Init
+window.addEventListener('beforeunload', e => {
+  if (!state.finished) { e.preventDefault(); e.returnValue = ''; }
 });
+
+const hadSave = load();
+if (!hadSave) { state.startTs = Date.now(); save(); }
+render();
+updateScore();
+if (!state.finished) {
+  startTimer();
+} else {
+  tickTimer();
+  document.getElementById('tval').className = 'tval danger';
+  document.getElementById('tprog').style.width = '0%';
+  showResult();
+}
 </script>
 </body>
 </html>
